@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Http on YY of Me</title>
+    <link>http://localhost:1313/tags/http/</link>
+    <description>Recent content in Http on YY of Me</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 02 Aug 2014 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/http/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>HTTP API设计</title>
+      <link>http://localhost:1313/post/restful-api-design/</link>
+      <pubDate>Sat, 02 Aug 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/post/restful-api-design/</guid>
+      <description>
+
+&lt;h2 id=&#34;http-api设计指导:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;HTTP API设计指导&lt;/h2&gt;
+
+&lt;p&gt;via &lt;a href=&#34;https://github.com/interagent/http-api-design&#34;&gt;github@geemus&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;介绍:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;介绍&lt;/h3&gt;
+
+&lt;p&gt;作者的本意是介绍&lt;a href=&#34;https://heroku.com/&#34; title=&#34;神奇的平台&#34;&gt;heroku&lt;/a&gt;平台的 &lt;code&gt;http-json&lt;/code&gt; API设计 &lt;a href=&#34;https://devcenter.heroku.com/articles/platform-api-reference&#34;&gt;heroku官方文档&lt;/a&gt;
+本文意在推荐一套成熟的api设计模式来减少读者在api设计上遇到的坑.无论如何,这篇指导都比较适合
+初涉api设计,或者在api设计上遇到瓶颈的同学.学习之-&lt;/p&gt;
+
+&lt;h3 id=&#34;准备工作:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;准备工作&lt;/h3&gt;
+
+&lt;h4 id=&#34;1-需要tls:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;1. 需要tls&lt;/h4&gt;
+
+&lt;p&gt;强制依赖tls握手协议,所有不通过tls的请求都视为非法的,阻止并返回 &lt;code&gt;403&lt;/code&gt; 错误.不推荐使用重定向动作,
+因为重定向行为本身就接受了所有的非法的客户端请求,而且加倍了服务器流量,重定向的请求同样没有通过tls,这
+是个非常差的设计.&lt;/p&gt;
+
+&lt;h4 id=&#34;2-在accepts头参数中表明api的版本:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;2. 在accepts头参数中表明api的版本&lt;/h4&gt;
+
+&lt;p&gt;不要使用默认的版本,要让客户端请求明确表明它们需要的api版本通过在&lt;code&gt;accepts&lt;/code&gt;头参数里面加上版本号.
+如:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Accept: application/vnd.heroku+json; version=3
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-使用etags:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;3. 使用Etags&lt;/h4&gt;
+
+&lt;p&gt;使用 &lt;code&gt;etag&lt;/code&gt; 头参数来缓存数据,客户端只需回传 &lt;code&gt;If-None-Match&lt;/code&gt; 验证数据是否过期,这样可以节省服务器资源.&lt;/p&gt;
+
+&lt;h4 id=&#34;4-通过request-ids追踪请求:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;4. 通过Request-Ids追踪请求&lt;/h4&gt;
+
+&lt;p&gt;使用 &lt;code&gt;Request-Id&lt;/code&gt; 头参数,协助追中和debug请求.&lt;/p&gt;
+
+&lt;h4 id=&#34;5-content-range标记页码:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;5. Content-Range标记页码&lt;/h4&gt;
+
+&lt;h3 id=&#34;请求-request:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;请求 &lt;code&gt;Request&lt;/code&gt;&lt;/h3&gt;
+
+&lt;h4 id=&#34;1-使用状态码:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;1. 使用状态码&lt;/h4&gt;
+
+&lt;p&gt;状态码介绍内容省略,可以通过&lt;a href=&#34;google.com&#34;&gt;google&lt;/a&gt;以及&lt;a href=&#34;baidu.com&#34;&gt;baidu&lt;/a&gt;等搜索出详细介绍.&lt;a href=&#34;http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html&#34;&gt;HTTP response code spec&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;2-返回完整的资源:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;2. 返回完整的资源&lt;/h4&gt;
+
+&lt;p&gt;请求成功后(200, 201状态码),尽可能的返回完整的资源.即使是 &lt;code&gt;put/patch&lt;/code&gt; 和 &lt;code&gt;delete&lt;/code&gt; 请求.
+如:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl -X DELETE \  
+ https://service.com/apps/1f9b/domains/0fd4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;HTTP/1.1 200 OK
+Content-Type: application/json;charset=utf-8
+...
+{
+ &amp;quot;created_at&amp;quot;: &amp;quot;2012-01-01T12:00:00Z&amp;quot;,
+ &amp;quot;hostname&amp;quot;: &amp;quot;subdomain.example.com&amp;quot;,
+ &amp;quot;id&amp;quot;: &amp;quot;01234567-89ab-cdef-0123-456789abcdef&amp;quot;,
+ &amp;quot;updated_at&amp;quot;: &amp;quot;2012-01-01T12:00:00Z&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl -X DELETE \  
+ https://service.com/apps/1f9b/dynos/05bd
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;HTTP/1.1 202 Accepted
+Content-Type: application/json;charset=utf-8
+...
+{}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-接受json参数请求:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;3. 接受json参数请求&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl -X POST https://service.com/apps \
+    -H &amp;quot;Content-Type: application/json&amp;quot; \
+    -d &#39;{&amp;quot;name&amp;quot;: &amp;quot;demoapp&amp;quot;}&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &amp;quot;id&amp;quot;: &amp;quot;01234567-89ab-cdef-0123-456789abcdef&amp;quot;,
+  &amp;quot;name&amp;quot;: &amp;quot;demoapp&amp;quot;,
+  &amp;quot;owner&amp;quot;: {
+    &amp;quot;email&amp;quot;: &amp;quot;username@example.com&amp;quot;,
+    &amp;quot;id&amp;quot;: &amp;quot;01234567-89ab-cdef-0123-456789abcdef&amp;quot;
+  },
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;4-使用restful的路径格式:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;4. 使用restful的路径格式&lt;/h4&gt;
+
+&lt;h5 id=&#34;资源名:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;资源名&lt;/h5&gt;
+
+&lt;p&gt;　　
+使用资源名词的复数形式,e.g. &lt;code&gt;books, apples, users&lt;/code&gt; 但是也存在列外,比如大部分情况下一个 &lt;code&gt;user&lt;/code&gt; 只有一个 &lt;code&gt;account&lt;/code&gt;
+e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/users/:user/account/actions/:action/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;资源操作:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;资源操作&lt;/h5&gt;
+
+&lt;p&gt;单单展示资源的时候,路径名不需要添加动作,堆资源进行操作的时候需要满足如下规则:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/resources/:resource/actions/:action
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/books/{book_id}/actions/delete
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;5-路径使用小写字母:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;5. 路径使用小写字母&lt;/h4&gt;
+
+&lt;p&gt;使用小写字母和破折号标示路径. e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;service-api.com/users
+service-api.com/app-setups
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;json 或者 yaml 字段属性, 使用下划线链接. e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;service_class: &amp;quot;first&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;6-路径中资源可以用非id标示:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;6. 路径中资源可以用非ID标示&lt;/h4&gt;
+
+&lt;p&gt;前面介绍过,资源路径标示. &lt;code&gt;/resources/{resource_id}&lt;/code&gt; 但是总会存在,资源标示符未非数字的情况,如: &lt;code&gt;uuid&lt;/code&gt;
+出现此类情况,可以使用其他标示符填写路径. e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl https://service.com/users/{app_id_or_name}
+$ curl https://service.com/users/97addcf0-c182
+$ curl https://service.com/users/www-prod
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;不要只允许使用IDs标示资源&lt;/p&gt;
+
+&lt;h4 id=&#34;7-因尽量减少路径的深层次嵌套:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;7. 因尽量减少路径的深层次嵌套&lt;/h4&gt;
+
+&lt;p&gt;往往会因为数据模型的深层次嵌套导致路径的深层次嵌套. e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/orgs/{org_id}/apps/{app_id}/dynos/{dyno_id}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这种写法导致路径的理解困难,难读.推荐做法&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/orgs/{org_id}
+/orgs/{org_id}/apps
+/apps/{app_id}
+/apps/{app_id}/dynos
+/dynos/{dyno_id}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;路径集合也能标示主从关系.并且易读写.&lt;/p&gt;
+
+&lt;h3 id=&#34;反馈-response:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;反馈 &lt;code&gt;Response&lt;/code&gt;&lt;/h3&gt;
+
+&lt;h4 id=&#34;1-资源的唯一标示id:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;1. 资源的唯一标示ID&lt;/h4&gt;
+
+&lt;p&gt;为每个资源创建一个唯一ID. e.g. &lt;code&gt;UUID&lt;/code&gt;
+不要使用数据表自增长ID作为标示符.并使用小写字母 &lt;code&gt;8-4-4-4-12&lt;/code&gt; 格式. e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;quot;id&amp;quot;: &amp;quot;01234567-89ab-cdef-0123-456789abcdef&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;2-记录资源创建和更新时间戳:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;2. 记录资源创建和更新时间戳&lt;/h4&gt;
+
+&lt;p&gt;提供 &lt;code&gt;created_at&lt;/code&gt; 和 &lt;code&gt;updated_at&lt;/code&gt; e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  ...
+  &amp;quot;created_at&amp;quot;: &amp;quot;2014-08-01T12:00:00Z&amp;quot;,
+  &amp;quot;updated_at&amp;quot;: &amp;quot;2014-08-01T13:00:00Z&amp;quot;,
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-使用utc时间和iso8601格式:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;3. 使用UTC时间和ISo8601格式&lt;/h4&gt;
+
+&lt;p&gt;e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;quot;finished_at&amp;quot;: &amp;quot;2012-01-01T12:00:00Z&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;4-包含并嵌套外键关系:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;4. 包含并嵌套外键关系&lt;/h4&gt;
+
+&lt;p&gt;使用:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &amp;quot;name&amp;quot;: &amp;quot;service-production&amp;quot;,
+  &amp;quot;owner&amp;quot;: {
+    &amp;quot;id&amp;quot;: &amp;quot;5d8201b0...&amp;quot;
+  },
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;而非:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &amp;quot;name&amp;quot;: &amp;quot;service-production&amp;quot;,
+  &amp;quot;owner_id&amp;quot;: &amp;quot;5d8201b0...&amp;quot;,
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;原因:这样做的目的是为了能够方便的扩展关系资源包含的属性,而不需要修改或引入数据结构&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &amp;quot;name&amp;quot;: &amp;quot;service-production&amp;quot;,
+  &amp;quot;owner&amp;quot;: {
+    &amp;quot;id&amp;quot;: &amp;quot;5d8201b0...&amp;quot;,
+    &amp;quot;name&amp;quot;: &amp;quot;Alice&amp;quot;,
+    &amp;quot;email&amp;quot;: &amp;quot;alice@heroku.com&amp;quot;
+  },
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;5-错误数据返回格式应该是经过设计的:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;5. 错误数据返回格式应该是经过设计的&lt;/h4&gt;
+
+&lt;p&gt;一般包括错误 &lt;code&gt;id&lt;/code&gt; 易理解的信息 &lt;code&gt;message&lt;/code&gt; 以及一个可以获取解决方案的 &lt;code&gt;url&lt;/code&gt;
+e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;HTTP/1.1 429 Too Many Requests
+{
+  &amp;quot;id&amp;quot;:      &amp;quot;rate_limit&amp;quot;,
+  &amp;quot;message&amp;quot;: &amp;quot;Account reached its API rate limit.&amp;quot;,
+  &amp;quot;url&amp;quot;:     &amp;quot;https://docs.service.com/rate-limits&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;6-标示请求速率限制状态:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;6. 标示请求速率限制状态&lt;/h4&gt;
+
+&lt;p&gt;使用 &lt;code&gt;RateLimit-Remaining&lt;/code&gt; 头参数,标示当前请求限制状态&lt;/p&gt;
+
+&lt;h4 id=&#34;7-压缩返回的json文件:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;7. 压缩返回的json文件&lt;/h4&gt;
+
+&lt;p&gt;去掉不必要的换行符,空格.
+使用:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{&amp;quot;beta&amp;quot;:false,&amp;quot;email&amp;quot;:&amp;quot;alice@heroku.com&amp;quot;,&amp;quot;id&amp;quot;:&amp;quot;01234567-89ab-cdef-0123-456789abcdef&amp;quot;,&amp;quot;last_login&amp;quot;:&amp;quot;2012-01-01T12:00:00Z&amp;quot;, &amp;quot;created_at&amp;quot;:&amp;quot;2012-01-01T12:00:00Z&amp;quot;,&amp;quot;updated_at&amp;quot;:&amp;quot;2012-01-01T12:00:00Z&amp;quot;}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;替代:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &amp;quot;beta&amp;quot;: false,
+  &amp;quot;email&amp;quot;: &amp;quot;alice@heroku.com&amp;quot;,
+  &amp;quot;id&amp;quot;: &amp;quot;01234567-89ab-cdef-0123-456789abcdef&amp;quot;,
+  &amp;quot;last_login&amp;quot;: &amp;quot;2012-01-01T12:00:00Z&amp;quot;,
+  &amp;quot;created_at&amp;quot;: &amp;quot;2012-01-01T12:00:00Z&amp;quot;,
+  &amp;quot;updated_at&amp;quot;: &amp;quot;2012-01-01T12:00:00Z&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但是这并不以为着精简json的内容,更不能通过添加查询参数( &lt;code&gt;?pretty=true&lt;/code&gt; ), 或者在 &lt;code&gt;accept&lt;/code&gt; 头参数中添加属性( &lt;code&gt;Accept: application/vnd.heroku+json; version=3; indent=4;&lt;/code&gt; )&lt;/p&gt;
+
+&lt;h3 id=&#34;注意:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;注意&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;提供机器识别的json数据结构. &lt;a href=&#34;https://github.com/interagent/prmd&#34;&gt;tool prmd&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;提供简单明了的API使用文档,即使这有你一个人使用.&lt;/li&gt;
+&lt;li&gt;提供可以及时执行的列子.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+&lt;pre&gt;&lt;code&gt; curl -is https://$TOKEN@service.com/users
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+&lt;li&gt;加入change log&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&#34;声明-转载请注明出处via-xus-https-github-com-johnsmithx:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;&lt;strong&gt;声明&lt;/strong&gt;:转载请注明出处via&lt;a href=&#34;https://github.com/JohnSmithX&#34;&gt;xus&lt;/a&gt;&lt;/h4&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

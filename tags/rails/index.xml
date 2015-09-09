@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Rails on YY of Me</title>
+    <link>http://localhost:1313/tags/rails/</link>
+    <description>Recent content in Rails on YY of Me</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sun, 10 Aug 2014 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/rails/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>rails-如何追踪model层值的改变</title>
+      <link>http://localhost:1313/post/read-rails/</link>
+      <pubDate>Sun, 10 Aug 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/post/read-rails/</guid>
+      <description>
+
+&lt;h2 id=&#34;原文-adam-sanderson-http-monkeyandcrow-com-blog-reading-rails-change-tracking:94c452166c29530c023e9b3b39a0ba3d&#34;&gt;原文&lt;a href=&#34;http://monkeyandcrow.com/blog/reading_rails_change_tracking/&#34;&gt;Adam Sanderson&lt;/a&gt;&lt;/h2&gt;
+
+&lt;p&gt;一段交互命令&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;person = Person.find(8)
+person.name = &amp;quot;Mortimer&amp;quot; 
+person.name_changed?    #=&amp;gt; true
+person.name_was         #=&amp;gt; &amp;quot;Horton&amp;quot;
+person.changes          #=&amp;gt; {&amp;quot;name&amp;quot;=&amp;gt;[&amp;quot;Horton&amp;quot;,&amp;quot;Mortimer&amp;quot;]}
+person.save!            
+person.changes          #=&amp;gt; {}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;.name_changed?&lt;/code&gt; &lt;code&gt;.name_was&lt;/code&gt; &lt;code&gt;changes&lt;/code&gt; 方法是如何实现的?&lt;br /&gt;
+注: 原文作者提供了一个 &lt;a href=&#34;https://github.com/adamsanderson/qwandry&#34;&gt;qwandry&lt;/a&gt; 工具.笔者配合sublime一起使用效果不错,省去了好多查找文件的时间.强烈推荐试试&lt;/p&gt;
+
+&lt;h3 id=&#34;activemodel:94c452166c29530c023e9b3b39a0ba3d&#34;&gt;ActiveModel&lt;/h3&gt;
+
+&lt;p&gt;我们知道rails model层实现依赖于ActiveRecord这个神奇的库(ruby元编程一书中有详细介绍).不过我们需要的方法存在与ActiveModel中，打开&lt;code&gt;dirty.rb&lt;/code&gt;,&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;module Dirty
+  extend ActiveSupport::Concern
+  include ActiveModel::AttributeMethods
+
+  included do
+    attribute_method_suffix &#39;_changed?&#39;, &#39;_change&#39;, &#39;_will_change!&#39;, &#39;_was&#39;
+    #...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;included do ...&lt;/code&gt; 此为钩子方法, 它的作用是被别的类或者模块包涵的时候触发此方法,执行紧跟着的语句块.此外还有 &lt;code&gt;include&lt;/code&gt; &lt;code&gt;method_added&lt;/code&gt; &lt;code&gt;method_removed&lt;/code&gt; 等
+ 方法.合理利用他们可以达到意想不到的编程效果.&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;attribute_method_suffix&lt;/code&gt; 该方法的作用是在调用以它参数为后缀的方法时,如&lt;code&gt;_changed?&lt;/code&gt; 自动寻找并执行自定义的方法 &lt;code&gt;attribute_changed?&lt;/code&gt; 同时将后缀的前半部分
+作为它的参数.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# Handle &amp;lt;tt&amp;gt;*_changed?&amp;lt;/tt&amp;gt; for +method_missing+.
+def attribute_changed?(attr, options = {}) #:nodoc:
+  result = changed_attributes.include?(attr)
+  result &amp;amp;&amp;amp;= options[:to] == __send__(attr) if options.key?(:to)
+  result &amp;amp;&amp;amp;= options[:from] == changed_attributes[attr] if options.key?(:from)
+  result
+end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;让我们来分析一下的代码,&lt;code&gt;changed_attributes&lt;/code&gt; 用来存储modle实例的旧数据(未被保存的数据)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;def changed_attributes
+  @changed_attributes ||= ActiveSupport::HashWithIndifferentAccess.new
+end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;(ActiveSupport::HashWithIndifferentAccess笔者的rails版本是4.1.4,作用等同于 &lt;code&gt;{}&lt;/code&gt;. 但在普通hash列表的基础上进行了封装,相同字面量的&lt;code&gt;symbol&lt;/code&gt;和&lt;code&gt;string&lt;/code&gt;作为键的意义相同.)&lt;/p&gt;
+
+&lt;p&gt;所以当我们调用 &lt;code&gt;person.name_changed?&lt;/code&gt;的时候,事实上调用了&lt;code&gt;person.attribute_changed?(name)&lt;/code&gt;,接着细读一下他的代码,不难发现该段代码在 &lt;code&gt;changed_attributes&lt;/code&gt; 查找未保存的旧数据
+结果可想而知,需要注意的是,接下来的:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;result &amp;amp;&amp;amp;= options[:to] == __send__(attr) if options.key?(:to)
+result &amp;amp;&amp;amp;= options[:from] == changed_attributes[attr] if options.key?(:from)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这两句代码的作用使得原来的 &lt;code&gt;person.name_changed?&lt;/code&gt; 方法可以添加 &lt;code&gt;from&lt;/code&gt; 和 &lt;code&gt;to&lt;/code&gt; 参数,这样该方法能能够精确判断 &lt;code&gt;name&lt;/code&gt; 属性的改动.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;person.name_changed?(from: &amp;quot;Horton&amp;quot;, to: &amp;quot;Mortimer&amp;quot;) # =&amp;gt; true
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;调整一下,让我们来分析一下 &lt;code&gt;person.changes&lt;/code&gt; 方法, 在&lt;code&gt;dirty.rb&lt;/code&gt;不难找到它的定义:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;def changes
+  ActiveSupport::HashWithIndifferentAccess[changed.map { |attr| [attr, attribute_change(attr)] }]
+end
+def changed
+  changed_attributes.keys
+end
+def attribute_change(attr)
+  [changed_attributes[attr], __send__(attr)] if attribute_changed?(attr)
+end
+def changed_attributes
+  @changed_attributes ||= ActiveSupport::HashWithIndifferentAccess.new
+end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;值得注意的是 &lt;code&gt;[]&lt;/code&gt;是 &lt;code&gt;HashWithIndifferentAccess&lt;/code&gt; 中定义的类方法:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;def self.[](*args)
+  new.merge!(Hash[*args])
+end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;通过上面几个方法的组合,我们不难看出 &lt;code&gt;change&lt;/code&gt; 方法其实就是返回一个包括属性的新旧值的 &lt;code&gt;HashWithIndifferentAccess&lt;/code&gt; 的实例.&lt;/p&gt;
+
+&lt;h3 id=&#34;activerecord:94c452166c29530c023e9b3b39a0ba3d&#34;&gt;ActiveRecord&lt;/h3&gt;
+
+&lt;p&gt;和ActiveModel一样, ActiveRecord也有一个 &lt;code&gt;dirty.rb&lt;/code&gt; 文件&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;def write_attribute(attr, value)
+  attr = attr.to_s
+
+  save_changed_attribute(attr, value)
+
+  super(attr, value)
+end
+
+def save_changed_attribute(attr, value)
+  # The attribute already has an unsaved change.
+  if attribute_changed?(attr)
+    old = changed_attributes[attr]
+    changed_attributes.delete(attr) unless _field_changed?(attr, old, value)
+  else
+    old = clone_attribute_value(:read_attribute, attr)
+    changed_attributes[attr] = old if _field_changed?(attr, old, value)
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这段代码做了一件事,向实例属性中写入新值,需要注意的是 &lt;code&gt;save_changed_attribute&lt;/code&gt; 方法, 如果属性值发生了改变,那么 &lt;code&gt;changed_attributes&lt;/code&gt; 列表删除该属性再调用super创建新属性
+如果属性值没有发生变化 &lt;code&gt;changed_attributes&lt;/code&gt; 列表覆盖该属性值.&lt;/p&gt;
+
+&lt;h4 id=&#34;声明-转载请注明出处via-xus-https-github-com-johnsmithx:94c452166c29530c023e9b3b39a0ba3d&#34;&gt;&lt;strong&gt;声明&lt;/strong&gt;:转载请注明出处via&lt;a href=&#34;https://github.com/JohnSmithX&#34;&gt;xus&lt;/a&gt;&lt;/h4&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
