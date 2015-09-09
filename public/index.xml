@@ -528,15 +528,6 @@ e.g.&lt;/p&gt;
     </item>
     
     <item>
-      <title>关于我</title>
-      <link>http://yyo.me/About/</link>
-      <pubDate>Sun, 01 Jun 2014 00:00:00 +0000</pubDate>
-      
-      <guid>http://yyo.me/About/</guid>
-      <description></description>
-    </item>
-    
-    <item>
       <title>写日志</title>
       <link>http://yyo.me/post/first-page/</link>
       <pubDate>Sun, 01 Jun 2014 00:00:00 +0000</pubDate>
@@ -557,6 +548,23 @@ e.g.&lt;/p&gt;
 调皮.总会给喜爱它的人们带来惊喜.&lt;/p&gt;
 
 &lt;p&gt;&amp;ndash;《可爱的代码》&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>About Me</title>
+      <link>http://yyo.me/about/</link>
+      <pubDate>Sun, 01 Jun 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://yyo.me/about/</guid>
+      <description>
+
+&lt;h3 id=&#34;feature:6083a88ee3411b0d17ce02d738f69d47&#34;&gt;Feature&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/JohnSmithX&#34;&gt;github&lt;/a&gt;@JohnSmithX&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.v2ex.com/member/JohnSmith&#34;&gt;v2ex&lt;/a&gt;@JohnSmith&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     

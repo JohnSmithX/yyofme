@@ -1,9 +1,13 @@
 +++
-title = "关于我"
-tags = ["随笔", "生活"]
+title = "About Me"
+tags = ["about"]
 date = "2014-06-01"
 categories = [
-  "生活"
+  "个人"
 ]
-slug = "About"
 +++
+
+### Feature
+
+* [github](https://github.com/JohnSmithX)@JohnSmithX
+* [v2ex](http://www.v2ex.com/member/JohnSmith)@JohnSmith
