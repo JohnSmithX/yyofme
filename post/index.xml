@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on YY of Me</title>
-    <link>http://localhost:1313/post/</link>
+    <link>http://yyo.me/post/</link>
     <description>Recent content in Posts on YY of Me</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Wed, 09 Sep 2015 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://yyo.me/post/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Rust的三种指针</title>
-      <link>http://localhost:1313/post/rust-three-pointers/</link>
+      <link>http://yyo.me/post/rust-three-pointers/</link>
       <pubDate>Wed, 09 Sep 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/post/rust-three-pointers/</guid>
+      <guid>http://yyo.me/post/rust-three-pointers/</guid>
       <description>
 
 &lt;h2 id=&#34;rust的三种指针:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;Rust的三种指针&lt;/h2&gt;
@@ -197,10 +197,10 @@ fn main() {
     
     <item>
       <title>读东野圭吾小说《白夜行》</title>
-      <link>http://localhost:1313/post/book-baiyexing/</link>
+      <link>http://yyo.me/post/book-baiyexing/</link>
       <pubDate>Mon, 11 Aug 2014 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/post/book-baiyexing/</guid>
+      <guid>http://yyo.me/post/book-baiyexing/</guid>
       <description>&lt;p&gt;&amp;nbsp;&amp;nbsp;说实话，读完这篇小说有一段时间了。但每当想起，小说的情节历历在目，给人影响深刻。我写这篇日志的目的是为了记录现阶段对它的理解，
 以便日后看到时希望能够产生新的理解和感情，也将作为对成长的理解。&lt;/p&gt;
 
@@ -239,10 +239,10 @@ fn main() {
     
     <item>
       <title>HTTP API设计</title>
-      <link>http://localhost:1313/post/restful-api-design/</link>
+      <link>http://yyo.me/post/restful-api-design/</link>
       <pubDate>Sat, 02 Aug 2014 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/post/restful-api-design/</guid>
+      <guid>http://yyo.me/post/restful-api-design/</guid>
       <description>
 
 &lt;h2 id=&#34;http-api设计指导:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;HTTP API设计指导&lt;/h2&gt;
@@ -529,10 +529,10 @@ e.g.&lt;/p&gt;
     
     <item>
       <title>写日志</title>
-      <link>http://localhost:1313/post/first-page/</link>
+      <link>http://yyo.me/post/first-page/</link>
       <pubDate>Sun, 01 Jun 2014 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/post/first-page/</guid>
+      <guid>http://yyo.me/post/first-page/</guid>
       <description>
 
 &lt;h2 id=&#34;代码123:7342f20d1c70fcee515c4d86ae67857e&#34;&gt;代码123&lt;/h2&gt;

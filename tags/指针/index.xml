@@ -2,19 +2,19 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>指针 on YY of Me</title>
-    <link>http://localhost:1313/tags/%E6%8C%87%E9%92%88/</link>
+    <link>http://yyo.me/tags/%E6%8C%87%E9%92%88/</link>
     <description>Recent content in 指针 on YY of Me</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Wed, 09 Sep 2015 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/%E6%8C%87%E9%92%88/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://yyo.me/tags/%E6%8C%87%E9%92%88/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Rust的三种指针</title>
-      <link>http://localhost:1313/post/rust-three-pointers/</link>
+      <link>http://yyo.me/post/rust-three-pointers/</link>
       <pubDate>Wed, 09 Sep 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/post/rust-three-pointers/</guid>
+      <guid>http://yyo.me/post/rust-three-pointers/</guid>
       <description>
 
 &lt;h2 id=&#34;rust的三种指针:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;Rust的三种指针&lt;/h2&gt;
