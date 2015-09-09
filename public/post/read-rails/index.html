@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>
+	  
+	  rails-如何追踪model层值的改变 | YY of Me
+	  
+  </title>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/uikit/2.21.0/css/uikit.min.css">
+  
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/8.6/styles/github.min.css">
+  <link rel="stylesheet" href="http://localhost:1313/css/style.css">
+</head>
+
+<body>
+	<div class="uk-block uk-block-large uk-block-muted">
+		<div class="uk-container uk-container-center">
+			<div class="uk-grid">
+				<div class="uk-width-1-10"></div>
+				<div class="uk-width-8-10">
+          
+          <div id="header" class="clearfix">
+            <div class="uk-float-left">
+              <h2><a href="http://localhost:1313/">YY of Me</a></h2>
+            </div>
+            <div class="uk-float-right">
+              <a href="http://localhost:1313/" class="uk-button">Home</a>
+              
+              
+                
+              
+                
+              
+                
+              
+                
+              
+                
+              
+                
+                  <a href="http://localhost:1313/About/" class="uk-button">About</a>
+                
+              
+            </div>
+          </div>
+				</div>
+				<div class="uk-width-1-10"></div>
+			</div>
+		</div>
+	</div>
+
+<div class="uk-block uk-block-default">
+	<div class="uk-container uk-container-center">
+		<div class="uk-grid">
+			<div class="uk-width-1-10"></div>
+			<div class="uk-width-8-10">
+				<article class="uk-article">
+					<h1 class="uk-article-title" style="font-size: 23px;">
+						rails-如何追踪model层值的改变
+					</h1>
+					
+					<p class="uk-article-meta">Posted on Sun, Aug 10, 2014 |  <a href="http://localhost:1313//tags/ruby" class="uk-button uk-button-mini">#ruby</a> <a href="http://localhost:1313//tags/rails" class="uk-button uk-button-mini">#rails</a></p>
+        <div class="uk-panel uk-panel-box uk-panel-box-primary">
+          Unless otherwise indicated, the text of documents in this site is available under the <a href="https://creativecommons.org/licenses/by/3.0/deed">Creative Commons Attribution 3.0 Unported License</a>, or any later version. Copyright 2014-2016 xushuai.
+        </div>
+					
+
+<h2 id="原文-adam-sanderson-http-monkeyandcrow-com-blog-reading-rails-change-tracking:94c452166c29530c023e9b3b39a0ba3d">原文<a href="http://monkeyandcrow.com/blog/reading_rails_change_tracking/">Adam Sanderson</a></h2>
+
+<p>一段交互命令</p>
+
+<pre><code>person = Person.find(8)
+person.name = &quot;Mortimer&quot; 
+person.name_changed?    #=&gt; true
+person.name_was         #=&gt; &quot;Horton&quot;
+person.changes          #=&gt; {&quot;name&quot;=&gt;[&quot;Horton&quot;,&quot;Mortimer&quot;]}
+person.save!            
+person.changes          #=&gt; {}
+</code></pre>
+
+<p><code>.name_changed?</code> <code>.name_was</code> <code>changes</code> 方法是如何实现的?<br />
+注: 原文作者提供了一个 <a href="https://github.com/adamsanderson/qwandry">qwandry</a> 工具.笔者配合sublime一起使用效果不错,省去了好多查找文件的时间.强烈推荐试试</p>
+
+<h3 id="activemodel:94c452166c29530c023e9b3b39a0ba3d">ActiveModel</h3>
+
+<p>我们知道rails model层实现依赖于ActiveRecord这个神奇的库(ruby元编程一书中有详细介绍).不过我们需要的方法存在与ActiveModel中，打开<code>dirty.rb</code>,</p>
+
+<pre><code>module Dirty
+  extend ActiveSupport::Concern
+  include ActiveModel::AttributeMethods
+
+  included do
+    attribute_method_suffix '_changed?', '_change', '_will_change!', '_was'
+    #...
+</code></pre>
+
+<p><code>included do ...</code> 此为钩子方法, 它的作用是被别的类或者模块包涵的时候触发此方法,执行紧跟着的语句块.此外还有 <code>include</code> <code>method_added</code> <code>method_removed</code> 等
+ 方法.合理利用他们可以达到意想不到的编程效果.</p>
+
+<p><code>attribute_method_suffix</code> 该方法的作用是在调用以它参数为后缀的方法时,如<code>_changed?</code> 自动寻找并执行自定义的方法 <code>attribute_changed?</code> 同时将后缀的前半部分
+作为它的参数.</p>
+
+<pre><code># Handle &lt;tt&gt;*_changed?&lt;/tt&gt; for +method_missing+.
+def attribute_changed?(attr, options = {}) #:nodoc:
+  result = changed_attributes.include?(attr)
+  result &amp;&amp;= options[:to] == __send__(attr) if options.key?(:to)
+  result &amp;&amp;= options[:from] == changed_attributes[attr] if options.key?(:from)
+  result
+end
+</code></pre>
+
+<p>让我们来分析一下的代码,<code>changed_attributes</code> 用来存储modle实例的旧数据(未被保存的数据)</p>
+
+<pre><code>def changed_attributes
+  @changed_attributes ||= ActiveSupport::HashWithIndifferentAccess.new
+end
+</code></pre>
+
+<p>(ActiveSupport::HashWithIndifferentAccess笔者的rails版本是4.1.4,作用等同于 <code>{}</code>. 但在普通hash列表的基础上进行了封装,相同字面量的<code>symbol</code>和<code>string</code>作为键的意义相同.)</p>
+
+<p>所以当我们调用 <code>person.name_changed?</code>的时候,事实上调用了<code>person.attribute_changed?(name)</code>,接着细读一下他的代码,不难发现该段代码在 <code>changed_attributes</code> 查找未保存的旧数据
+结果可想而知,需要注意的是,接下来的:</p>
+
+<pre><code>result &amp;&amp;= options[:to] == __send__(attr) if options.key?(:to)
+result &amp;&amp;= options[:from] == changed_attributes[attr] if options.key?(:from)
+</code></pre>
+
+<p>这两句代码的作用使得原来的 <code>person.name_changed?</code> 方法可以添加 <code>from</code> 和 <code>to</code> 参数,这样该方法能能够精确判断 <code>name</code> 属性的改动.</p>
+
+<pre><code>person.name_changed?(from: &quot;Horton&quot;, to: &quot;Mortimer&quot;) # =&gt; true
+</code></pre>
+
+<p>调整一下,让我们来分析一下 <code>person.changes</code> 方法, 在<code>dirty.rb</code>不难找到它的定义:</p>
+
+<pre><code>def changes
+  ActiveSupport::HashWithIndifferentAccess[changed.map { |attr| [attr, attribute_change(attr)] }]
+end
+def changed
+  changed_attributes.keys
+end
+def attribute_change(attr)
+  [changed_attributes[attr], __send__(attr)] if attribute_changed?(attr)
+end
+def changed_attributes
+  @changed_attributes ||= ActiveSupport::HashWithIndifferentAccess.new
+end
+</code></pre>
+
+<p>值得注意的是 <code>[]</code>是 <code>HashWithIndifferentAccess</code> 中定义的类方法:</p>
+
+<pre><code>def self.[](*args)
+  new.merge!(Hash[*args])
+end
+</code></pre>
+
+<p>通过上面几个方法的组合,我们不难看出 <code>change</code> 方法其实就是返回一个包括属性的新旧值的 <code>HashWithIndifferentAccess</code> 的实例.</p>
+
+<h3 id="activerecord:94c452166c29530c023e9b3b39a0ba3d">ActiveRecord</h3>
+
+<p>和ActiveModel一样, ActiveRecord也有一个 <code>dirty.rb</code> 文件</p>
+
+<pre><code>def write_attribute(attr, value)
+  attr = attr.to_s
+
+  save_changed_attribute(attr, value)
+
+  super(attr, value)
+end
+
+def save_changed_attribute(attr, value)
+  # The attribute already has an unsaved change.
+  if attribute_changed?(attr)
+    old = changed_attributes[attr]
+    changed_attributes.delete(attr) unless _field_changed?(attr, old, value)
+  else
+    old = clone_attribute_value(:read_attribute, attr)
+    changed_attributes[attr] = old if _field_changed?(attr, old, value)
+  end
+end
+</code></pre>
+
+<p>这段代码做了一件事,向实例属性中写入新值,需要注意的是 <code>save_changed_attribute</code> 方法, 如果属性值发生了改变,那么 <code>changed_attributes</code> 列表删除该属性再调用super创建新属性
+如果属性值没有发生变化 <code>changed_attributes</code> 列表覆盖该属性值.</p>
+
+<h4 id="声明-转载请注明出处via-xus-https-github-com-johnsmithx:94c452166c29530c023e9b3b39a0ba3d"><strong>声明</strong>:转载请注明出处via<a href="https://github.com/JohnSmithX">xus</a></h4>
+
+				</article>
+			</div>
+			<div class="uk-width-1-10"></div>
+		</div>
+    <div class="uk-grid">
+      <div class="uk-width-1-10"></div>
+      <div class="uk-width-8-10">
+        
+        <div class="uk-panel uk-panel-box uk-panel-box-secondary">
+          <h3 class="uk-panel-title">Related Posts</h3>
+          
+          
+          <ul class="uk-list uk-list-striped">
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+          </ul>
+        </div>
+      </div>
+      <div class="uk-width-1-10"></div>
+    </div>
+    <div class="uk-grid">
+      <div class="uk-width-1-10"></div>
+      <div class="uk-width-8-10">
+        <div id="disqus_thread" data-uk-scrollspy></div>
+      </div>
+      <div class="uk-width-1-10"></div>
+    </div>
+	</div>
+</div>
+
+	<div id="footer" class="uk-block uk-block-large uk-block-muted" data-uk-scrollspy="{repeat: true, delay: 600}">
+		<div class="uk-container uk-container-center">
+			<div class="uk-grid">
+				<div class="uk-width-1-10"></div>
+				<div class="uk-width-8-10">
+          <div class="uk-grid">
+            <div class="uk-width-1-1">
+              &copy; Copyright 2014-2016  xushuai
+            </div>
+            <div class="uk-width-1-1">
+              Powered by <a href="http://gohugo.io">Hugo</a> | Themed by <a href="https://github.com/leopku/hugo-theme-next">NeXT</a>
+            </div>
+          </div>
+
+				</div>
+				<div class="uk-width-1-10"></div>
+			</div>
+		</div>
+	</div>
+
+	<script src="//cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
+	<script src="//cdn.jsdelivr.net/uikit/2.21.0/js/uikit.min.js"></script>
+	<script src="//cdn.jsdelivr.net/highlight.js/8.6.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', '', 'auto');
+ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+<script data-no-instant>document.write('<script src="http://'
+        + (location.host || 'localhost').split(':')[0]
+		+ ':1313/livereload.js?mindelay=10"></'
+        + 'script>')</script></body>
+</html>
+
+
+
+<script type="text/javascript">
+
+(function() {
+
+  if (window.location.hostname == "localhost") { return; };
+
+  var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    ds_loaded = false;
+  var disqus_shortname = '';
+    disqus_url = 'http:\/\/localhost:1313\/post\/read-rails\/';
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+  $('[data-uk-scrollspy]').on('init.uk.scrollspy', function () {
+    if (!ds_loaded){
+      ds_loaded = true;
+      document.getElementById('disqus_thread').appendChild(dsq);
+    }
+  })
+
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+

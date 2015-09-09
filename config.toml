@@ -1,0 +1,28 @@
+baseurl = "http://yyo.me/"
+languageCode = "zh-cn"
+title = "YY of Me"
+contentdir = "content"
+layoutdir = "layouts"
+publishdir = "public"
+builddrafts = false
+canonifyurls = true
+
+[Params]
+  Author = "xushuai"
+  Birth = ""
+  DateFormat = "Mon, Jan 2, 2006"
+  DateFrom = "2014-07-01"
+  GoogleAnalyticsUserID = ""
+  GravatarHash = ""
+  Facebook = ""
+  Twitter = ""
+  Github = "https://github.com/JohnSmithX"
+  Disqus = "yyofme"
+  perPage = 10
+  ShowRelatedPost = true
+  ShowTagCloud = false
+  SyntaxHighlightTheme = "github.min.css"
+  infiniteScroll = false # if true, pagination will disabled.
+
+[Indexes]
+  tag = "tags"

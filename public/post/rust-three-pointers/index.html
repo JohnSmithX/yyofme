@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>
+	  
+	  Rust的三种指针 | YY of Me
+	  
+  </title>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/uikit/2.21.0/css/uikit.min.css">
+  
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/highlight.js/8.8/styles/github.min.css">
+  <link rel="stylesheet" href="http://localhost:1313/css/style.css">
+</head>
+
+<body>
+	<div class="uk-block uk-block-large uk-block-muted">
+		<div class="uk-container uk-container-center">
+			<div class="uk-grid">
+				<div class="uk-width-1-10"></div>
+				<div class="uk-width-8-10">
+          
+          <div id="header" class="clearfix">
+            <div class="uk-float-left">
+              <h2><a href="http://localhost:1313/">YY of Me</a></h2>
+            </div>
+            <div class="uk-float-right">
+              <a href="http://localhost:1313/" class="uk-button">Home</a>
+              
+              
+                
+              
+                
+              
+                
+              
+                
+                  <a href="http://localhost:1313/About/" class="uk-button">About</a>
+                
+              
+                
+              
+            </div>
+          </div>
+				</div>
+				<div class="uk-width-1-10"></div>
+			</div>
+		</div>
+	</div>
+
+<div class="uk-block uk-block-default">
+	<div class="uk-container uk-container-center">
+		<div class="uk-grid">
+			<div class="uk-width-1-10"></div>
+			<div class="uk-width-8-10">
+				<article class="uk-article">
+					<h1 class="uk-article-title" style="font-size: 23px;">
+						Rust的三种指针
+					</h1>
+					
+					<p class="uk-article-meta">Posted on Wed, Sep 9, 2015 |  <a href="http://localhost:1313//tags/rust" class="uk-button uk-button-mini">#Rust</a> <a href="http://localhost:1313//tags/%E6%8C%87%E9%92%88" class="uk-button uk-button-mini">#指针</a></p>
+        <div class="uk-panel uk-panel-box uk-panel-box-primary">
+          Unless otherwise indicated, the text of documents in this site is available under the <a href="https://creativecommons.org/licenses/by/3.0/deed">Creative Commons Attribution 3.0 Unported License</a>, or any later version. Copyright 2014-2016 xushuai.
+        </div>
+					
+
+<h2 id="rust的三种指针:45dddc0d0ef3a1e3621260379b8d75ad">Rust的三种指针</h2>
+
+<h3 id="summary:45dddc0d0ef3a1e3621260379b8d75ad">Summary</h3>
+
+<h4 id="他们都有谁:45dddc0d0ef3a1e3621260379b8d75ad">他们都有谁？</h4>
+
+<ul>
+<li>所有权指针 unique pointers</li>
+<li>借贷指针 borrowed pointers</li>
+<li>原始指针 raw pointers</li>
+</ul>
+
+<h4 id="有什么不同:45dddc0d0ef3a1e3621260379b8d75ad">有什么不同？</h4>
+
+<ul>
+<li>所有权（不是指针）：绑定一个值并拥有所有权 <code>let a = 5;</code> a有5的所有权</li>
+<li>所有权指针：和所有权类似但所绑定的值是一个指针类型 <code>let a = Box::new(5);</code></li>
+<li>借贷指针：引用一个现有的值，但是并不分配内存，只是一个地址的别名</li>
+<li>原始指针：和c/c++指针类似</li>
+</ul>
+
+<h4 id="tips:45dddc0d0ef3a1e3621260379b8d75ad">Tips：</h4>
+
+<ul>
+<li>数据可变性遵从指针的可变性<code>let a = Box::new(5);</code>不可变，<code>let mut a = Box::new(5);</code>可变</li>
+<li>在任何时候只有一个<strong>所有权指</strong>针指向同一内存</li>
+
+<li><p><strong>所有权指针</strong>和<strong>原始指针必</strong>须解引用才能它们，但在Rust中，方法调用会自动解引用</p>
+
+<pre><code class="language-rust">struct Person;
+
+
+impl Person {
+    fn say_hello(self) {
+        println!(&quot;hello&quot;);
+    }
+}
+let a = Box::new(Person);
+let b: Person = *a;// 需要解引用
+// or
+let a.say_hello();// 自动解引用
+</code></pre></li>
+
+<li><p>值的<strong>所有权</strong>可以通过重新绑定来转移，但只能存在一个<strong>owner</strong>，当值不在有绑定时，会被释放</p></li>
+</ul>
+
+<h3 id="所有权指针:45dddc0d0ef3a1e3621260379b8d75ad">所有权指针</h3>
+
+<h5 id="让我们创建一个所有权指针:45dddc0d0ef3a1e3621260379b8d75ad">让我们创建一个所有权指针：</h5>
+
+<pre><code class="language-rust">let a: Box&lt;i32&gt; = Box::new(5);
+</code></pre>
+
+<p><code>Box::new(5)</code>会在堆中分配一个<code>i32</code>类型值为<code>5</code>的空间，<code>a</code>是一个指向它的<code>所有权指针</code>，<code>a</code>在桟上并且是唯一的。</p>
+
+<h5 id="让我们看看它的有哪些特性:45dddc0d0ef3a1e3621260379b8d75ad">让我们看看它的有哪些特性：</h5>
+
+<pre><code class="language-rust">// 我们不能通过`*a = 6`来改变它的值，因为它的可变性遵从`a`的可变性
+let a: Box&lt;i32&gt; = Box::new(5);
+*a = 6; // Fail
+// 所以
+let mut a: Box&lt;i32&gt; = Box::new(5);
+*a = 6; // OK
+
+/*==========================================================*/
+// 所有权指针必须通过解引用来使用，但调用方法会自动解引用
+struct Person;
+impl Person {
+    fn say_hello(self) {
+        println!(&quot;hello&quot;);
+    }
+}
+let a = Box::new(Person);
+let b: Person = *a;// 解引用
+// or
+let a.say_hello();// 自动解引用
+
+/*==========================================================*/
+//在一般情况下，Rust具有移动而不是复制的语义，但原始类型具有复制的语义
+let a = 5;
+let b = a;//`a`是`i32`类型属于原始类型，所以`b`持有`a`的拷贝。详：`Copy` 和 `Clone` trail
+
+// but
+let a = Box::new(5);
+let b = a;// 这里`a`持有的所有权指针转移给了`b`
+</code></pre>
+
+<h3 id="借贷指针:45dddc0d0ef3a1e3621260379b8d75ad">借贷指针</h3>
+
+<p>我们使用<code>&amp;</code>操作符创建一个借来的引用，用<code>*</code>来解引用。<strong>借贷指针</strong>不分配内存，类似<strong>别名</strong>，自动解引用规则也应用于<strong>借贷指针</strong>。</p>
+
+<pre><code class="language-rust">let a: &amp;i32 = &amp;5;// `a`为值`5`的一个借贷引用
+let b: i32 = *a;// 使用 `*` 解引用
+</code></pre>
+
+<h5 id="不可变的借贷指针不是唯一的:45dddc0d0ef3a1e3621260379b8d75ad">不可变的借贷指针不是唯一的：</h5>
+
+<pre><code class="language-rust">let a: i32 = 5;
+let b: &amp;i32 = &amp;a;
+let c: &amp;i32 = b;
+let d: &amp;i32 = b;
+println!(&quot;values {} {} {}&quot;, *b, *c, *d);
+</code></pre>
+
+<p><strong>注：可以看出借贷指针类型具有具有复制的语义</strong></p>
+
+<h5 id="可变的借贷指针是唯一的:45dddc0d0ef3a1e3621260379b8d75ad">可变的借贷指针是唯一的：</h5>
+
+<pre><code class="language-rust">let mut a: i32 = 5;// `a`为可变的绑定
+let b: &amp;mut i32 = &amp;mut a;// b为一个可变借贷指针，获得一个可变绑定的可变引用
+*b = 6;// OK 因为`b`是可变借贷指针
+let c: &amp;mut i32 = &amp;mut a;// Fail 可变的借贷引用同一时间只能存在一个
+// 所以
+{
+	let b: &amp;mut i32 = &amp;mut a;// 独立的组用域
+}
+let c: &amp;mut i32 = &amp;mut a;// OK `b`已经被销毁
+</code></pre>
+
+<h5 id="变量的可变性和值的可变性:45dddc0d0ef3a1e3621260379b8d75ad">变量的可变性和值的可变性：</h5>
+
+<pre><code class="language-rust">let mut a: i32 = 5;
+let mut b: i32 = 6;// 可变绑定`a`和`b`
+let mut c: &amp;mut i32 = &amp;mut a;// `c`的类型为可变借贷指针，本身是可变的
+c = &amp;mut b;          // Ok `c`可以引用不同的可变绑定
+</code></pre>
+
+<h3 id="原始指针:45dddc0d0ef3a1e3621260379b8d75ad">原始指针</h3>
+
+<p><strong>原始指针</strong>表现和<code>c/c++</code>类似，在<code>Rust</code>中原始指针又名<strong>不安全指针</strong>，因为<strong>原始指针</strong>可能是一个<strong>空指针</strong>或者<strong>野指针</strong>，解引用它们是不安全的。</p>
+
+<pre><code class="language-rust">let a: *const i32 = &amp;5;// 通过明确的制定变量为指针类型来得到一个原始指针
+let b: *mut i32 = &amp;5;// 原始指针两种形式 `*const T`和`*mut T`
+</code></pre>
+
+<p><code>*const T</code>为不可变的<strong>原始指针</strong>，<code>*mut T</code>为可变的<strong>原始指针</strong>，可以解引用后改变引用的值。</p>
+
+<pre><code class="language-rust">let a: *mut i32 = &amp;5;
+unsafe {
+	*a = 6;// 可变原始指针，可以改变引用的值
+}
+</code></pre>
+
+<h5 id="原始指针需要在-unsafe-块中解引用:45dddc0d0ef3a1e3621260379b8d75ad">原始指针需要在<code>unsafe</code>块中解引用:</h5>
+
+<pre><code class="language-rust">let a: *const i32 = &amp;5;
+unsafe {
+	println!(&quot;{:?}&quot;, *a);
+}
+
+// Fail
+let a: *const i32 = &amp;5;
+println!(&quot;{:?}&quot;, *a);// Fail 需要`unsafe`块解引用
+</code></pre>
+
+<h5 id="example:45dddc0d0ef3a1e3621260379b8d75ad">Example:</h5>
+
+<pre><code class="language-rust">use std::rc::Rc;
+
+fn bar(x: Rc&lt;i32&gt;) { }
+fn baz(x: &amp;i32) { }
+
+fn main() {
+    let a: Rc&lt;i32&gt; = Rc::new(45);
+    bar(x.clone());   // 此处使用`clone`时要显示的告诉使用者复制了一个原始指针，并且引用计数加一
+    baz(&amp;*x);         // 没有在`unsafe`中解引用，是因为已经在`Rc`中封装，并不会增加引用计数
+    println!(&quot;{}&quot;, 100 - *x);
+}
+</code></pre>
+
+<h3 id="小结:45dddc0d0ef3a1e3621260379b8d75ad">小结</h3>
+
+<blockquote>
+<p>&emsp;&emsp;<code>Rust</code>的安全来自严格的类型使用规范，只要搞懂了<code>Rust</code>如何通过强大的指针系统来实现安全的所有权系统就能在编译器编译通过的情况下，能够按照预期在执行，更不用担心各种潜在的Bug。</p>
+</blockquote>
+
+				</article>
+			</div>
+			<div class="uk-width-1-10"></div>
+		</div>
+    <div class="uk-grid">
+      <div class="uk-width-1-10"></div>
+      <div class="uk-width-8-10">
+        
+        <div class="uk-panel uk-panel-box uk-panel-box-secondary">
+          <h3 class="uk-panel-title">Related Posts</h3>
+          
+          
+          <ul class="uk-list uk-list-striped">
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+              
+              
+              
+            
+          </ul>
+        </div>
+      </div>
+      <div class="uk-width-1-10"></div>
+    </div>
+    <div class="uk-grid">
+      <div class="uk-width-1-10"></div>
+      <div class="uk-width-8-10">
+        <div id="disqus_thread" data-uk-scrollspy></div>
+      </div>
+      <div class="uk-width-1-10"></div>
+    </div>
+	</div>
+</div>
+
+	<div id="footer" class="uk-block uk-block-large uk-block-muted" data-uk-scrollspy="{repeat: true, delay: 600}">
+		<div class="uk-container uk-container-center">
+			<div class="uk-grid">
+				<div class="uk-width-1-10"></div>
+				<div class="uk-width-8-10">
+          <div class="uk-grid">
+            <div class="uk-width-1-1">
+              &copy; Copyright 2014-2016  xushuai
+            </div>
+            <div class="uk-width-1-1">
+              Powered by <a href="http://gohugo.io">Hugo</a> | Themed by <a href="https://github.com/leopku/hugo-theme-next">NeXT</a>
+            </div>
+          </div>
+
+				</div>
+				<div class="uk-width-1-10"></div>
+			</div>
+		</div>
+	</div>
+
+	<script src="//cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
+	<script src="//cdn.jsdelivr.net/uikit/2.21.0/js/uikit.min.js"></script>
+	<script src="//cdn.jsdelivr.net/highlight.js/8.6.0/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>
+
+
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ga('create', '', 'auto');
+ga('send', 'pageview');
+</script>
+
+
+
+
+
+
+
+<script data-no-instant>document.write('<script src="http://'
+        + (location.host || 'localhost').split(':')[0]
+		+ ':1313/livereload.js?mindelay=10"></'
+        + 'script>')</script></body>
+</html>
+
+
+
+<script type="text/javascript">
+
+(function() {
+
+  if (window.location.hostname == "localhost") { return; };
+
+  var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    ds_loaded = false;
+  var disqus_shortname = 'yyofme';
+    disqus_url = 'http:\/\/localhost:1313\/post\/rust-three-pointers\/';
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+  $('[data-uk-scrollspy]').on('init.uk.scrollspy', function () {
+    if (!ds_loaded){
+      ds_loaded = true;
+      document.getElementById('disqus_thread').appendChild(dsq);
+    }
+  })
+
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+

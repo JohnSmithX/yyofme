@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html align="center">
+<head>
+    <title>404 Not Found</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-itunes-app" content="app-id=728159144" />
+
+    <style>
+        body {
+            font-family: Avenir;
+            background-color: rgb(200, 200, 200);
+            animation: show 0.25s;
+            -webkit-animation: show 0.25s;
+            -moz-animation: show 0.25s;
+            -o-animation: show 0.25s;
+        }
+        #alert {
+            padding: 0;
+            display: none;
+            background-color: rgb(245, 245, 245);
+            width: 300px;
+            height: 160px;
+            border: 1px solid rgb(227, 227, 229);
+            border-radius: 8px;
+            margin:0 auto;
+            margin-top: 20%;
+            animation: show 0.25s;
+            -webkit-animation: show 0.25s;
+            -moz-animation: show 0.25s;
+            -o-animation: show 0.25s;
+        }
+        #title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        #message {
+            text-align: center;
+            font-size: 17px;
+        }
+        hr {
+            border: none;
+            border-bottom: 1px solid rgb(227, 227, 229);
+        }
+        button {
+            margin: 0;
+            color: rgb(0, 122, 225);
+            font-size: 18px;
+            border: none;
+            background-color: transparent;
+            width: 45%;
+            line-height: 35px;
+        }
+        @-webkit-keyframes shadow
+        {
+            from { background-color: white; }
+            to { background-color: rgb(200, 200, 200); }
+        }
+        @-webkit-keyframes show
+        {
+            0% { -webkit-transform: scale(0.5,0.5); }
+            80% { -webkit-transform: scale(1.1,1.1); }
+            100% { -webkit-transform: scale(1.0,1.0); }
+        }
+    </style>
+
+    <script type="text/javascript">
+        function pageLoad () {
+            var alertView = document.getElementById('alert');
+            alertView.style.display = "block";
+        }
+        function enterHome() {
+            window.location = "/";
+        }
+        function enterProject() {
+            window.location = "/evermark";
+        }
+    </script>
+</head>
+<body onload="pageLoad()">
+<div id="alert">
+    <p id="title">404 Not Found</p>
+    <p id="message">您访问的页面不存在！</p>
+    <hr />
+    <button onclick="enterHome()">访问首页</button>
+    
+</div>
+<script data-no-instant>document.write('<script src="http://'
+        + (location.host || 'localhost').split(':')[0]
+		+ ':1313/livereload.js?mindelay=10"></'
+        + 'script>')</script></body>
+</html>

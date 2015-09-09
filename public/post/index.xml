@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on YY of Me</title>
+    <link>http://localhost:1313/post/</link>
+    <description>Recent content in Posts on YY of Me</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Wed, 09 Sep 2015 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Rust的三种指针</title>
+      <link>http://localhost:1313/post/rust-three-pointers/</link>
+      <pubDate>Wed, 09 Sep 2015 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/post/rust-three-pointers/</guid>
+      <description>
+
+&lt;h2 id=&#34;rust的三种指针:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;Rust的三种指针&lt;/h2&gt;
+
+&lt;h3 id=&#34;summary:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;Summary&lt;/h3&gt;
+
+&lt;h4 id=&#34;他们都有谁:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;他们都有谁？&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;所有权指针 unique pointers&lt;/li&gt;
+&lt;li&gt;借贷指针 borrowed pointers&lt;/li&gt;
+&lt;li&gt;原始指针 raw pointers&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&#34;有什么不同:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;有什么不同？&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;所有权（不是指针）：绑定一个值并拥有所有权 &lt;code&gt;let a = 5;&lt;/code&gt; a有5的所有权&lt;/li&gt;
+&lt;li&gt;所有权指针：和所有权类似但所绑定的值是一个指针类型 &lt;code&gt;let a = Box::new(5);&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;借贷指针：引用一个现有的值，但是并不分配内存，只是一个地址的别名&lt;/li&gt;
+&lt;li&gt;原始指针：和c/c++指针类似&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&#34;tips:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;Tips：&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;数据可变性遵从指针的可变性&lt;code&gt;let a = Box::new(5);&lt;/code&gt;不可变，&lt;code&gt;let mut a = Box::new(5);&lt;/code&gt;可变&lt;/li&gt;
+&lt;li&gt;在任何时候只有一个&lt;strong&gt;所有权指&lt;/strong&gt;针指向同一内存&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;strong&gt;所有权指针&lt;/strong&gt;和&lt;strong&gt;原始指针必&lt;/strong&gt;须解引用才能它们，但在Rust中，方法调用会自动解引用&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;struct Person;
+
+
+impl Person {
+    fn say_hello(self) {
+        println!(&amp;quot;hello&amp;quot;);
+    }
+}
+let a = Box::new(Person);
+let b: Person = *a;// 需要解引用
+// or
+let a.say_hello();// 自动解引用
+&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;值的&lt;strong&gt;所有权&lt;/strong&gt;可以通过重新绑定来转移，但只能存在一个&lt;strong&gt;owner&lt;/strong&gt;，当值不在有绑定时，会被释放&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;所有权指针:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;所有权指针&lt;/h3&gt;
+
+&lt;h5 id=&#34;让我们创建一个所有权指针:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;让我们创建一个所有权指针：&lt;/h5&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let a: Box&amp;lt;i32&amp;gt; = Box::new(5);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;Box::new(5)&lt;/code&gt;会在堆中分配一个&lt;code&gt;i32&lt;/code&gt;类型值为&lt;code&gt;5&lt;/code&gt;的空间，&lt;code&gt;a&lt;/code&gt;是一个指向它的&lt;code&gt;所有权指针&lt;/code&gt;，&lt;code&gt;a&lt;/code&gt;在桟上并且是唯一的。&lt;/p&gt;
+
+&lt;h5 id=&#34;让我们看看它的有哪些特性:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;让我们看看它的有哪些特性：&lt;/h5&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;// 我们不能通过`*a = 6`来改变它的值，因为它的可变性遵从`a`的可变性
+let a: Box&amp;lt;i32&amp;gt; = Box::new(5);
+*a = 6; // Fail
+// 所以
+let mut a: Box&amp;lt;i32&amp;gt; = Box::new(5);
+*a = 6; // OK
+
+/*==========================================================*/
+// 所有权指针必须通过解引用来使用，但调用方法会自动解引用
+struct Person;
+impl Person {
+    fn say_hello(self) {
+        println!(&amp;quot;hello&amp;quot;);
+    }
+}
+let a = Box::new(Person);
+let b: Person = *a;// 解引用
+// or
+let a.say_hello();// 自动解引用
+
+/*==========================================================*/
+//在一般情况下，Rust具有移动而不是复制的语义，但原始类型具有复制的语义
+let a = 5;
+let b = a;//`a`是`i32`类型属于原始类型，所以`b`持有`a`的拷贝。详：`Copy` 和 `Clone` trail
+
+// but
+let a = Box::new(5);
+let b = a;// 这里`a`持有的所有权指针转移给了`b`
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;借贷指针:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;借贷指针&lt;/h3&gt;
+
+&lt;p&gt;我们使用&lt;code&gt;&amp;amp;&lt;/code&gt;操作符创建一个借来的引用，用&lt;code&gt;*&lt;/code&gt;来解引用。&lt;strong&gt;借贷指针&lt;/strong&gt;不分配内存，类似&lt;strong&gt;别名&lt;/strong&gt;，自动解引用规则也应用于&lt;strong&gt;借贷指针&lt;/strong&gt;。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let a: &amp;amp;i32 = &amp;amp;5;// `a`为值`5`的一个借贷引用
+let b: i32 = *a;// 使用 `*` 解引用
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;不可变的借贷指针不是唯一的:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;不可变的借贷指针不是唯一的：&lt;/h5&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let a: i32 = 5;
+let b: &amp;amp;i32 = &amp;amp;a;
+let c: &amp;amp;i32 = b;
+let d: &amp;amp;i32 = b;
+println!(&amp;quot;values {} {} {}&amp;quot;, *b, *c, *d);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;strong&gt;注：可以看出借贷指针类型具有具有复制的语义&lt;/strong&gt;&lt;/p&gt;
+
+&lt;h5 id=&#34;可变的借贷指针是唯一的:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;可变的借贷指针是唯一的：&lt;/h5&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let mut a: i32 = 5;// `a`为可变的绑定
+let b: &amp;amp;mut i32 = &amp;amp;mut a;// b为一个可变借贷指针，获得一个可变绑定的可变引用
+*b = 6;// OK 因为`b`是可变借贷指针
+let c: &amp;amp;mut i32 = &amp;amp;mut a;// Fail 可变的借贷引用同一时间只能存在一个
+// 所以
+{
+	let b: &amp;amp;mut i32 = &amp;amp;mut a;// 独立的组用域
+}
+let c: &amp;amp;mut i32 = &amp;amp;mut a;// OK `b`已经被销毁
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;变量的可变性和值的可变性:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;变量的可变性和值的可变性：&lt;/h5&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let mut a: i32 = 5;
+let mut b: i32 = 6;// 可变绑定`a`和`b`
+let mut c: &amp;amp;mut i32 = &amp;amp;mut a;// `c`的类型为可变借贷指针，本身是可变的
+c = &amp;amp;mut b;          // Ok `c`可以引用不同的可变绑定
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;原始指针:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;原始指针&lt;/h3&gt;
+
+&lt;p&gt;&lt;strong&gt;原始指针&lt;/strong&gt;表现和&lt;code&gt;c/c++&lt;/code&gt;类似，在&lt;code&gt;Rust&lt;/code&gt;中原始指针又名&lt;strong&gt;不安全指针&lt;/strong&gt;，因为&lt;strong&gt;原始指针&lt;/strong&gt;可能是一个&lt;strong&gt;空指针&lt;/strong&gt;或者&lt;strong&gt;野指针&lt;/strong&gt;，解引用它们是不安全的。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let a: *const i32 = &amp;amp;5;// 通过明确的制定变量为指针类型来得到一个原始指针
+let b: *mut i32 = &amp;amp;5;// 原始指针两种形式 `*const T`和`*mut T`
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code&gt;*const T&lt;/code&gt;为不可变的&lt;strong&gt;原始指针&lt;/strong&gt;，&lt;code&gt;*mut T&lt;/code&gt;为可变的&lt;strong&gt;原始指针&lt;/strong&gt;，可以解引用后改变引用的值。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let a: *mut i32 = &amp;amp;5;
+unsafe {
+	*a = 6;// 可变原始指针，可以改变引用的值
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;原始指针需要在-unsafe-块中解引用:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;原始指针需要在&lt;code&gt;unsafe&lt;/code&gt;块中解引用:&lt;/h5&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let a: *const i32 = &amp;amp;5;
+unsafe {
+	println!(&amp;quot;{:?}&amp;quot;, *a);
+}
+
+// Fail
+let a: *const i32 = &amp;amp;5;
+println!(&amp;quot;{:?}&amp;quot;, *a);// Fail 需要`unsafe`块解引用
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;example:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;Example:&lt;/h5&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;use std::rc::Rc;
+
+fn bar(x: Rc&amp;lt;i32&amp;gt;) { }
+fn baz(x: &amp;amp;i32) { }
+
+fn main() {
+    let a: Rc&amp;lt;i32&amp;gt; = Rc::new(45);
+    bar(x.clone());   // 此处使用`clone`时要显示的告诉使用者复制了一个原始指针，并且引用计数加一
+    baz(&amp;amp;*x);         // 没有在`unsafe`中解引用，是因为已经在`Rc`中封装，并不会增加引用计数
+    println!(&amp;quot;{}&amp;quot;, 100 - *x);
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;小结:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;小结&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;&amp;emsp;&amp;emsp;&lt;code&gt;Rust&lt;/code&gt;的安全来自严格的类型使用规范，只要搞懂了&lt;code&gt;Rust&lt;/code&gt;如何通过强大的指针系统来实现安全的所有权系统就能在编译器编译通过的情况下，能够按照预期在执行，更不用担心各种潜在的Bug。&lt;/p&gt;
+&lt;/blockquote&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>读东野圭吾小说《白夜行》</title>
+      <link>http://localhost:1313/post/book-baiyexing/</link>
+      <pubDate>Mon, 11 Aug 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/post/book-baiyexing/</guid>
+      <description>&lt;p&gt;&amp;nbsp;&amp;nbsp;说实话，读完这篇小说有一段时间了。但每当想起，小说的情节历历在目，给人影响深刻。我写这篇日志的目的是为了记录现阶段对它的理解，
+以便日后看到时希望能够产生新的理解和感情，也将作为对成长的理解。&lt;/p&gt;
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;对于整篇小说，作家东野圭吾不仅牢牢的把握住了逻辑的完整严密，甚至于细节部分都无懈可击，更是掌握了读者读书过程中的思维和情绪，轻重缓和
+恰到好处，情节逻辑紧密，悬念似有非无，引人入胜。影响深刻的是，对于全书剧情一直都能处在 ‘懂了’ 和 ‘又不懂’ 之间。冥冥之中，猜到了结局，而又
+迫切想要知道作者给我们的结局，就是在这种即矛盾又欣喜的气氛下，《白夜行》给我们带来了一次非常难忘的体验。&lt;/p&gt;
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;有关小说剧情，我不愿在这赘述，甚至是有意规避它。原因之一就是我非常希望对此书感兴趣的朋友能够一口气读完全本，是的这本书并不厚，甚至是不可思议，
+因为一本不到400页的小说，仿佛能够带领读者浏览完人生中最重要的前30年。整篇推理逻辑都合情合理，但是唯一让我摸不着头脑的是，雪穗和亮司到底想要什么
+或者是一切的行为有什么目的？表面上看，雪穗汲取的是金钱，名誉，地位，权利，外表的光鲜，为达目的而采取的一切行为在小说中描述起来已然可以称为病态。
+不断使用肮脏的手段，利用他人的不幸来满足自身的欲望，但即使到小说结尾我也没有意会到雪穗的一丝毫满足，仿佛她把这种不择手段本身当成了生活的必需品
+，就好似生活之于柴米油盐,那雪穗究竟追求的何物？在我看来唯一解释的通的是，童年阴影扭曲下的雪穗，生存的唯一动力只剩下‘夺取’了。她所得到的一切都是从身边
+的亲友身上夺取而来的，并且她并没有因获得的事物而感到心满意足，仅仅只是‘夺取’的过程，看着他人的不幸来满足自己。&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;我的天空没有太阳，总是黑夜，但并不暗，因为有东西代替了太阳。虽然没有太阳那么明亮，但对我来说已经足够。凭借这份光，我便能把黑夜当成白天。
+我从来就没有太阳，所以不怕失去。 &amp;ndash; 雪穗&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;小说的男主人公亮司，纵观故事前后，亮司一直并且只在做两件事，一是赎罪，二就是对雪穗的感情，虽然作者并没有描写男女主人公之间的感情，但是细细推敲
+，不难发现小说中多次出现出现的《飘》给了我们完整的答案，《飘》的结尾处，&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;白瑞德：“思嘉，我从来不是那样的人，不能耐心地拾起一片碎片，把它们凑合在一起，然后对自己说这个修补好了的东西跟新的完全一样。一样东西破碎了就是破碎了&amp;mdash;-我宁愿记住它最好时的模样，而不想把它修补好。然后终生看着那些碎了的地方。”&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;这一句就暗示了《白夜行》总将回事一个悲剧，至少不可能出现幻想中的头顶有太阳，手牵着手，在白天散步。亮司说过：“想要在白天走路。”结合《飘》的结尾，可以看出亮司所
+期望的并不是多年之后还能够和雪穗并肩走在阳光下，而是希望这一切，桐原洋介的兽行，弑父，雪穗杀母，以及之后的所有的罪行从未发生，而他们只是两个普普通通的孩子，可以牵着彼此的手
+漫步在阳光之下。但是，读完小说，正是这一些简简单单的希望对于雪和亮来说是多么的残忍，也正是因为这些简简单单的希望触动了读者的心弦，让读者对雪和亮产生不了一丝一毫的怨恨。
+东野圭吾成功塑造了一对阴暗而悲情的主角。&lt;/p&gt;
+
+&lt;p&gt;&amp;nbsp;&amp;nbsp;写在最后，结局以亮司的死画上了句号，不可说不圆满。小说最后描写雪穗的背影犹如白色的影子，因为对于雪穗来说代替太阳的亮司死了，相互依赖才走到今日的两人早已成为一个
+整体，所以亮司的死可以认为也带走了雪穗的灵魂，雪穗的今后人生可想而知。作者向我们展示了另一种形式的爱，更深层次的爱，发人深省，值得一读。&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>HTTP API设计</title>
+      <link>http://localhost:1313/post/restful-api-design/</link>
+      <pubDate>Sat, 02 Aug 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/post/restful-api-design/</guid>
+      <description>
+
+&lt;h2 id=&#34;http-api设计指导:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;HTTP API设计指导&lt;/h2&gt;
+
+&lt;p&gt;via &lt;a href=&#34;https://github.com/interagent/http-api-design&#34;&gt;github@geemus&lt;/a&gt;&lt;/p&gt;
+
+&lt;h3 id=&#34;介绍:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;介绍&lt;/h3&gt;
+
+&lt;p&gt;作者的本意是介绍&lt;a href=&#34;https://heroku.com/&#34; title=&#34;神奇的平台&#34;&gt;heroku&lt;/a&gt;平台的 &lt;code&gt;http-json&lt;/code&gt; API设计 &lt;a href=&#34;https://devcenter.heroku.com/articles/platform-api-reference&#34;&gt;heroku官方文档&lt;/a&gt;
+本文意在推荐一套成熟的api设计模式来减少读者在api设计上遇到的坑.无论如何,这篇指导都比较适合
+初涉api设计,或者在api设计上遇到瓶颈的同学.学习之-&lt;/p&gt;
+
+&lt;h3 id=&#34;准备工作:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;准备工作&lt;/h3&gt;
+
+&lt;h4 id=&#34;1-需要tls:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;1. 需要tls&lt;/h4&gt;
+
+&lt;p&gt;强制依赖tls握手协议,所有不通过tls的请求都视为非法的,阻止并返回 &lt;code&gt;403&lt;/code&gt; 错误.不推荐使用重定向动作,
+因为重定向行为本身就接受了所有的非法的客户端请求,而且加倍了服务器流量,重定向的请求同样没有通过tls,这
+是个非常差的设计.&lt;/p&gt;
+
+&lt;h4 id=&#34;2-在accepts头参数中表明api的版本:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;2. 在accepts头参数中表明api的版本&lt;/h4&gt;
+
+&lt;p&gt;不要使用默认的版本,要让客户端请求明确表明它们需要的api版本通过在&lt;code&gt;accepts&lt;/code&gt;头参数里面加上版本号.
+如:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Accept: application/vnd.heroku+json; version=3
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-使用etags:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;3. 使用Etags&lt;/h4&gt;
+
+&lt;p&gt;使用 &lt;code&gt;etag&lt;/code&gt; 头参数来缓存数据,客户端只需回传 &lt;code&gt;If-None-Match&lt;/code&gt; 验证数据是否过期,这样可以节省服务器资源.&lt;/p&gt;
+
+&lt;h4 id=&#34;4-通过request-ids追踪请求:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;4. 通过Request-Ids追踪请求&lt;/h4&gt;
+
+&lt;p&gt;使用 &lt;code&gt;Request-Id&lt;/code&gt; 头参数,协助追中和debug请求.&lt;/p&gt;
+
+&lt;h4 id=&#34;5-content-range标记页码:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;5. Content-Range标记页码&lt;/h4&gt;
+
+&lt;h3 id=&#34;请求-request:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;请求 &lt;code&gt;Request&lt;/code&gt;&lt;/h3&gt;
+
+&lt;h4 id=&#34;1-使用状态码:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;1. 使用状态码&lt;/h4&gt;
+
+&lt;p&gt;状态码介绍内容省略,可以通过&lt;a href=&#34;google.com&#34;&gt;google&lt;/a&gt;以及&lt;a href=&#34;baidu.com&#34;&gt;baidu&lt;/a&gt;等搜索出详细介绍.&lt;a href=&#34;http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html&#34;&gt;HTTP response code spec&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;2-返回完整的资源:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;2. 返回完整的资源&lt;/h4&gt;
+
+&lt;p&gt;请求成功后(200, 201状态码),尽可能的返回完整的资源.即使是 &lt;code&gt;put/patch&lt;/code&gt; 和 &lt;code&gt;delete&lt;/code&gt; 请求.
+如:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl -X DELETE \  
+ https://service.com/apps/1f9b/domains/0fd4
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;HTTP/1.1 200 OK
+Content-Type: application/json;charset=utf-8
+...
+{
+ &amp;quot;created_at&amp;quot;: &amp;quot;2012-01-01T12:00:00Z&amp;quot;,
+ &amp;quot;hostname&amp;quot;: &amp;quot;subdomain.example.com&amp;quot;,
+ &amp;quot;id&amp;quot;: &amp;quot;01234567-89ab-cdef-0123-456789abcdef&amp;quot;,
+ &amp;quot;updated_at&amp;quot;: &amp;quot;2012-01-01T12:00:00Z&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl -X DELETE \  
+ https://service.com/apps/1f9b/dynos/05bd
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;HTTP/1.1 202 Accepted
+Content-Type: application/json;charset=utf-8
+...
+{}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-接受json参数请求:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;3. 接受json参数请求&lt;/h4&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl -X POST https://service.com/apps \
+    -H &amp;quot;Content-Type: application/json&amp;quot; \
+    -d &#39;{&amp;quot;name&amp;quot;: &amp;quot;demoapp&amp;quot;}&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &amp;quot;id&amp;quot;: &amp;quot;01234567-89ab-cdef-0123-456789abcdef&amp;quot;,
+  &amp;quot;name&amp;quot;: &amp;quot;demoapp&amp;quot;,
+  &amp;quot;owner&amp;quot;: {
+    &amp;quot;email&amp;quot;: &amp;quot;username@example.com&amp;quot;,
+    &amp;quot;id&amp;quot;: &amp;quot;01234567-89ab-cdef-0123-456789abcdef&amp;quot;
+  },
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;4-使用restful的路径格式:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;4. 使用restful的路径格式&lt;/h4&gt;
+
+&lt;h5 id=&#34;资源名:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;资源名&lt;/h5&gt;
+
+&lt;p&gt;　　
+使用资源名词的复数形式,e.g. &lt;code&gt;books, apples, users&lt;/code&gt; 但是也存在列外,比如大部分情况下一个 &lt;code&gt;user&lt;/code&gt; 只有一个 &lt;code&gt;account&lt;/code&gt;
+e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/users/:user/account/actions/:action/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;资源操作:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;资源操作&lt;/h5&gt;
+
+&lt;p&gt;单单展示资源的时候,路径名不需要添加动作,堆资源进行操作的时候需要满足如下规则:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/resources/:resource/actions/:action
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/books/{book_id}/actions/delete
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;5-路径使用小写字母:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;5. 路径使用小写字母&lt;/h4&gt;
+
+&lt;p&gt;使用小写字母和破折号标示路径. e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;service-api.com/users
+service-api.com/app-setups
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;json 或者 yaml 字段属性, 使用下划线链接. e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;service_class: &amp;quot;first&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;6-路径中资源可以用非id标示:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;6. 路径中资源可以用非ID标示&lt;/h4&gt;
+
+&lt;p&gt;前面介绍过,资源路径标示. &lt;code&gt;/resources/{resource_id}&lt;/code&gt; 但是总会存在,资源标示符未非数字的情况,如: &lt;code&gt;uuid&lt;/code&gt;
+出现此类情况,可以使用其他标示符填写路径. e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;$ curl https://service.com/users/{app_id_or_name}
+$ curl https://service.com/users/97addcf0-c182
+$ curl https://service.com/users/www-prod
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;不要只允许使用IDs标示资源&lt;/p&gt;
+
+&lt;h4 id=&#34;7-因尽量减少路径的深层次嵌套:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;7. 因尽量减少路径的深层次嵌套&lt;/h4&gt;
+
+&lt;p&gt;往往会因为数据模型的深层次嵌套导致路径的深层次嵌套. e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/orgs/{org_id}/apps/{app_id}/dynos/{dyno_id}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这种写法导致路径的理解困难,难读.推荐做法&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/orgs/{org_id}
+/orgs/{org_id}/apps
+/apps/{app_id}
+/apps/{app_id}/dynos
+/dynos/{dyno_id}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;路径集合也能标示主从关系.并且易读写.&lt;/p&gt;
+
+&lt;h3 id=&#34;反馈-response:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;反馈 &lt;code&gt;Response&lt;/code&gt;&lt;/h3&gt;
+
+&lt;h4 id=&#34;1-资源的唯一标示id:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;1. 资源的唯一标示ID&lt;/h4&gt;
+
+&lt;p&gt;为每个资源创建一个唯一ID. e.g. &lt;code&gt;UUID&lt;/code&gt;
+不要使用数据表自增长ID作为标示符.并使用小写字母 &lt;code&gt;8-4-4-4-12&lt;/code&gt; 格式. e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;quot;id&amp;quot;: &amp;quot;01234567-89ab-cdef-0123-456789abcdef&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;2-记录资源创建和更新时间戳:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;2. 记录资源创建和更新时间戳&lt;/h4&gt;
+
+&lt;p&gt;提供 &lt;code&gt;created_at&lt;/code&gt; 和 &lt;code&gt;updated_at&lt;/code&gt; e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  ...
+  &amp;quot;created_at&amp;quot;: &amp;quot;2014-08-01T12:00:00Z&amp;quot;,
+  &amp;quot;updated_at&amp;quot;: &amp;quot;2014-08-01T13:00:00Z&amp;quot;,
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;3-使用utc时间和iso8601格式:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;3. 使用UTC时间和ISo8601格式&lt;/h4&gt;
+
+&lt;p&gt;e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;quot;finished_at&amp;quot;: &amp;quot;2012-01-01T12:00:00Z&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;4-包含并嵌套外键关系:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;4. 包含并嵌套外键关系&lt;/h4&gt;
+
+&lt;p&gt;使用:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &amp;quot;name&amp;quot;: &amp;quot;service-production&amp;quot;,
+  &amp;quot;owner&amp;quot;: {
+    &amp;quot;id&amp;quot;: &amp;quot;5d8201b0...&amp;quot;
+  },
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;而非:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &amp;quot;name&amp;quot;: &amp;quot;service-production&amp;quot;,
+  &amp;quot;owner_id&amp;quot;: &amp;quot;5d8201b0...&amp;quot;,
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;原因:这样做的目的是为了能够方便的扩展关系资源包含的属性,而不需要修改或引入数据结构&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &amp;quot;name&amp;quot;: &amp;quot;service-production&amp;quot;,
+  &amp;quot;owner&amp;quot;: {
+    &amp;quot;id&amp;quot;: &amp;quot;5d8201b0...&amp;quot;,
+    &amp;quot;name&amp;quot;: &amp;quot;Alice&amp;quot;,
+    &amp;quot;email&amp;quot;: &amp;quot;alice@heroku.com&amp;quot;
+  },
+  ...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;5-错误数据返回格式应该是经过设计的:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;5. 错误数据返回格式应该是经过设计的&lt;/h4&gt;
+
+&lt;p&gt;一般包括错误 &lt;code&gt;id&lt;/code&gt; 易理解的信息 &lt;code&gt;message&lt;/code&gt; 以及一个可以获取解决方案的 &lt;code&gt;url&lt;/code&gt;
+e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;HTTP/1.1 429 Too Many Requests
+{
+  &amp;quot;id&amp;quot;:      &amp;quot;rate_limit&amp;quot;,
+  &amp;quot;message&amp;quot;: &amp;quot;Account reached its API rate limit.&amp;quot;,
+  &amp;quot;url&amp;quot;:     &amp;quot;https://docs.service.com/rate-limits&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&#34;6-标示请求速率限制状态:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;6. 标示请求速率限制状态&lt;/h4&gt;
+
+&lt;p&gt;使用 &lt;code&gt;RateLimit-Remaining&lt;/code&gt; 头参数,标示当前请求限制状态&lt;/p&gt;
+
+&lt;h4 id=&#34;7-压缩返回的json文件:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;7. 压缩返回的json文件&lt;/h4&gt;
+
+&lt;p&gt;去掉不必要的换行符,空格.
+使用:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{&amp;quot;beta&amp;quot;:false,&amp;quot;email&amp;quot;:&amp;quot;alice@heroku.com&amp;quot;,&amp;quot;id&amp;quot;:&amp;quot;01234567-89ab-cdef-0123-456789abcdef&amp;quot;,&amp;quot;last_login&amp;quot;:&amp;quot;2012-01-01T12:00:00Z&amp;quot;, &amp;quot;created_at&amp;quot;:&amp;quot;2012-01-01T12:00:00Z&amp;quot;,&amp;quot;updated_at&amp;quot;:&amp;quot;2012-01-01T12:00:00Z&amp;quot;}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;替代:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;{
+  &amp;quot;beta&amp;quot;: false,
+  &amp;quot;email&amp;quot;: &amp;quot;alice@heroku.com&amp;quot;,
+  &amp;quot;id&amp;quot;: &amp;quot;01234567-89ab-cdef-0123-456789abcdef&amp;quot;,
+  &amp;quot;last_login&amp;quot;: &amp;quot;2012-01-01T12:00:00Z&amp;quot;,
+  &amp;quot;created_at&amp;quot;: &amp;quot;2012-01-01T12:00:00Z&amp;quot;,
+  &amp;quot;updated_at&amp;quot;: &amp;quot;2012-01-01T12:00:00Z&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但是这并不以为着精简json的内容,更不能通过添加查询参数( &lt;code&gt;?pretty=true&lt;/code&gt; ), 或者在 &lt;code&gt;accept&lt;/code&gt; 头参数中添加属性( &lt;code&gt;Accept: application/vnd.heroku+json; version=3; indent=4;&lt;/code&gt; )&lt;/p&gt;
+
+&lt;h3 id=&#34;注意:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;注意&lt;/h3&gt;
+
+&lt;blockquote&gt;
+&lt;ol&gt;
+&lt;li&gt;提供机器识别的json数据结构. &lt;a href=&#34;https://github.com/interagent/prmd&#34;&gt;tool prmd&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;提供简单明了的API使用文档,即使这有你一个人使用.&lt;/li&gt;
+&lt;li&gt;提供可以及时执行的列子.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;blockquote&gt;
+&lt;pre&gt;&lt;code&gt; curl -is https://$TOKEN@service.com/users
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+&lt;li&gt;加入change log&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
+
+&lt;h4 id=&#34;声明-转载请注明出处via-xus-https-github-com-johnsmithx:bcda3c781250d2e9b974ed0ba415289b&#34;&gt;&lt;strong&gt;声明&lt;/strong&gt;:转载请注明出处via&lt;a href=&#34;https://github.com/JohnSmithX&#34;&gt;xus&lt;/a&gt;&lt;/h4&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>写日志</title>
+      <link>http://localhost:1313/post/first-page/</link>
+      <pubDate>Sun, 01 Jun 2014 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/post/first-page/</guid>
+      <description>
+
+&lt;h2 id=&#34;代码123:7342f20d1c70fcee515c4d86ae67857e&#34;&gt;代码123&lt;/h2&gt;
+
+&lt;p&gt;最近又回顾了一下之前读过的开源类库,本有着&amp;rsquo;这个类(库),我应该能理解了,能够熟练使用了.&amp;lsquo;的想法.
+但每当要表达的时候就不知道如何下手,想理理关于它的思绪,发现它竟然如此陌生.陌生到我再看一眼它的
+代码就又熟悉了,但是无论如何都不能确定自己之前读到过这里.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;这并不是无痛呻吟,这应该就是所谓的,新手和大牛之间巨大的鸿沟.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;之后我做了个决定,决定组织好自己的语言,记录我眼中的代码.我想它们应该是活泼可爱的,温顺中并不失
+调皮.总会给喜爱它的人们带来惊喜.&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash;《可爱的代码》&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
