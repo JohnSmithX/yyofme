@@ -6,7 +6,7 @@ layoutdir = "layouts"
 publishdir = "public"
 builddrafts = false
 canonifyurls = true
-
+theme = "hugo-theme-next"
 [Params]
   Author = "xushuai"
   Birth = ""
