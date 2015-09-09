@@ -2,28 +2,28 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>生活 on YY of Me</title>
-    <link>http://localhost:1313/tags/%E7%94%9F%E6%B4%BB/</link>
+    <link>http://yyo.me/tags/%E7%94%9F%E6%B4%BB/</link>
     <description>Recent content in 生活 on YY of Me</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Sun, 01 Jun 2014 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:1313/tags/%E7%94%9F%E6%B4%BB/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://yyo.me/tags/%E7%94%9F%E6%B4%BB/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>关于我</title>
-      <link>http://localhost:1313/About/</link>
+      <link>http://yyo.me/About/</link>
       <pubDate>Sun, 01 Jun 2014 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/About/</guid>
+      <guid>http://yyo.me/About/</guid>
       <description></description>
     </item>
     
     <item>
       <title>写日志</title>
-      <link>http://localhost:1313/post/first-page/</link>
+      <link>http://yyo.me/post/first-page/</link>
       <pubDate>Sun, 01 Jun 2014 00:00:00 +0000</pubDate>
       
-      <guid>http://localhost:1313/post/first-page/</guid>
+      <guid>http://yyo.me/post/first-page/</guid>
       <description>
 
 &lt;h2 id=&#34;代码123:7342f20d1c70fcee515c4d86ae67857e&#34;&gt;代码123&lt;/h2&gt;
