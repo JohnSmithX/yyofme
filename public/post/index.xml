@@ -121,7 +121,7 @@ let d: &amp;amp;i32 = b;
 println!(&amp;quot;values {} {} {}&amp;quot;, *b, *c, *d);
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;&lt;strong&gt;注：可以看出借贷指针类型具有具有复制的语义&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;注：可以看出借贷指针类型具有复制的语义&lt;/strong&gt;&lt;/p&gt;
 
 &lt;h5 id=&#34;可变的借贷指针是唯一的:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;可变的借贷指针是唯一的：&lt;/h5&gt;
 
