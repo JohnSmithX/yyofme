@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>
 	  
-	  Rust的Deref coercion | YY of Me
+	   | YY of Me
 	  
   </title>
   <link rel="stylesheet" href="//cdn.jsdelivr.net/uikit/2.21.0/css/uikit.min.css">
   
-  <link rel="stylesheet" href="http://yyo.me/css/github.css">
-  <link rel="stylesheet" href="http://yyo.me/css/style.css">
+  <link rel="stylesheet" href="http://localhost:1313/css/github.css">
+  <link rel="stylesheet" href="http://localhost:1313/css/style.css">
 </head>
 
 <body>
@@ -23,10 +23,10 @@
           
           <div id="header" class="clearfix">
             <div class="uk-float-left">
-              <h2><a href="http://yyo.me/">YY of Me</a></h2>
+              <h2><a href="http://localhost:1313/">YY of Me</a></h2>
             </div>
             <div class="uk-float-right">
-              <a href="http://yyo.me/" class="uk-button">Home</a>
+              <a href="http://localhost:1313/" class="uk-button">Home</a>
               
               
                 
@@ -40,7 +40,9 @@
                 
               
                 
-                  <a href="http://yyo.me/about/" class="uk-button">About Me</a>
+                  <a href="http://localhost:1313/about/" class="uk-button">About Me</a>
+                
+              
                 
               
             </div>
@@ -58,66 +60,98 @@
 			<div class="uk-width-large-8-10 uk-width-medium-1-1 uk-width-small-1-1">
 				<article class="uk-article">
 					<h1 class="uk-article-title" style="font-size: 23px;">
-						Rust的Deref coercion
+						
 					</h1>
 					
-					<p class="uk-article-meta">Posted on Sun, Sep 20, 2015 |  <a href="http://yyo.me//tags/rust" class="uk-button uk-button-mini">#Rust</a> <a href="http://yyo.me//tags/trait" class="uk-button uk-button-mini">#trait</a> <a href="http://yyo.me//tags/deref" class="uk-button uk-button-mini">#Deref</a></p>
+					<p class="uk-article-meta">Posted on Mon, Jan 1, 0001 | </p>
         <div class="uk-panel uk-panel-box uk-panel-box-primary">
           Unless otherwise indicated, the text of documents in this site is available under the <a href="https://creativecommons.org/licenses/by/3.0/deed">Creative Commons Attribution 3.0 Unported License</a>, or any later version. Copyright 2014-2016 xushuai.
         </div>
 					
 
-<h2 id="rust的deref-coercion:1d16385d3d2e83b9611f1f0fdbd621b1">Rust的Deref coercion</h2>
+<h2 id="闭包:959ef45d128e0601b539db9349c422cd">闭包</h2>
 
-<h3 id="了解强制多态:1d16385d3d2e83b9611f1f0fdbd621b1">了解强制多态</h3>
+<h3 id="summary:959ef45d128e0601b539db9349c422cd">Summary</h3>
 
-<blockquote>
-<p>编译程序通过语义操作，把操作对象的类型强行加以变换，以符合函数或操作符的要求。程序设计语言中基本类型的大多数操作符，在发生不同类型的数据进行混合运算时，编译程序一般都会进行强制多态。程序员也可以显示地进行强制多态的操作(Casting)。举个例子，比如，int+double，编译系统一般会把int转换为double，然后执行double+double运算，这个int-&gt;double的转换，就实现了强制多态，即可是隐式的，也可显式转换。</p>
-</blockquote>
+<p>rust的闭包包含并保持声明它的上下文环境直到退出上下文环境。</p>
 
-<p>简单来说当变量遇到某种操作时，发生了类型转换。</p>
+<p><font color="red">注意</font>:</p>
 
-<h3 id="deref-http-doc-rust-lang-org-nightly-std-ops-trait-deref-html-trait:1d16385d3d2e83b9611f1f0fdbd621b1"><a href="http://doc.rust-lang.org/nightly/std/ops/trait.Deref.html">Deref</a> trait</h3>
+<ol>
+<li>闭包会转移，借用上下文环境中绑定的所有权</li>
+</ol>
 
-<p><code>Deref</code>是<code>Rust</code>的一个<code>trait</code>。<code>trait</code>相当于其它语言的接口或者协议。<code>Deref</code>的一般用来重载<code>*</code>解引用运算符。</p>
+<pre><code class="language-rust">let a = vec![0;10];
+// 绑定a转移了所有权，所以a将不能使用
+let b = || a;
+// 理解成
+let b = || {
+	let _a: Vec&lt;i32&gt; = a;
+    _a
+};
+println!(a); // Panic
 
-<pre><code class="language-rust">use std::ops::Deref;
+//=============================
+let a = vec![0;10];
+// 绑定a借用了所有权
+let b = || &amp;a;
+// 理解成
+let b = || {
+	let _a: &amp;Vec&lt;i32&gt; = &amp;a;
+    _a
+};
+println!(a); // OK
 
-struct Example {
-	value: i32,
-}
+//=============================
+// 可变性 `mut` 行为不太一样
+let mut a = vec![0;10];
+let b = || {a.push(1);a};
+// 理解成
+let b = || {
+	let mut _a = a;
+    _a.push(1);
+    _a
+};
+println!(a); // OK
 
-impl Deref for Example {
-	type Target = i32;
-    fn deref(&amp;self) -&gt; &amp;i32 {
-    	&amp;self.value
-    }
-}
-
-
-fn main() {
-	let x = Example{ value: 5 };
-    assert_eq!(5, *x); // 解引用会执行 Deref::deref(&amp;self) 返回一个i32类型
-}
+//=============================
+// 注：实现了`Copy` 和 `Clone` trait的类型转移所有权会拷贝自身
+// 所以涉及到 `mut` 部分不能使用以上的等价代码
+let a: i32 = 5;
+let b = || a; // i32实现了`Copy` 和 `Clone` trait
+println!(a);
 </code></pre>
 
-<h3 id="deref-coercion-https-doc-rust-lang-org-book-deref-coercions-html:1d16385d3d2e83b9611f1f0fdbd621b1"><a href="https://doc.rust-lang.org/book/deref-coercions.html">Deref coercion</a></h3>
+<ol>
+<li>闭包的可变性是遗传可变</li>
+</ol>
 
-<p><strong>deref coercions</strong> 解引用强制多态在<code>Rust</code>中的规则：假如一个类型<code>U</code>实现了<code>Deref</code>，那么 <code>&amp;U</code>类型将自动转化成<code>&amp;Self::Target</code>。(<code>Target</code>具体类型)</p>
+<pre><code class="language-rust">let a = 5;
 
-<pre><code class="language-rust">struct U&lt;T&gt;(T);
+</code></pre>
 
-impl&lt;T&gt; Deref for U&lt;T&gt; {
-	type Target = T;
-    fn deref(&amp;self) -&gt; &amp;Self::Target {
-        &amp;self.0
-    }
-}
+<h4 id="语法:959ef45d128e0601b539db9349c422cd">语法</h4>
 
-fn main() {
-	// 这里`&amp;U`类型被自动转换成了`&amp;Self::Target`，也就是`&amp;i32`
-	let _x: &amp;i32 = &amp;U::&lt;i32&gt;(5);
-}
+<pre><code class="language-rust">let plus_one = |x: i32| x + 1;
+
+plus_one(3); // =&gt; 4
+
+// or
+
+/// {} 是一个表达式，可以包含多行
+let plus_two = |x| {
+    let mut result: i32 = x;
+    result += 1;
+    result += 1;
+    result
+};
+
+plus_two(2); // =&gt; 4
+
+/// 闭包可以省略返回值类型并且和正常的函数语法相似
+fn  plus_one_v1   (x: i32 ) -&gt; i32 { x + 1 }
+let plus_one_v2 = |x: i32 | -&gt; i32 { x + 1 };
+let plus_one_v3 = |x: i32 |          x + 1  ;
 </code></pre>
 
 				</article>
@@ -141,7 +175,9 @@ fn main() {
               
               
               
-                <li><a href="http://yyo.me/post/rust-three-pointers/">Rust的三种指针</a></li>
+            
+              
+              
               
             
               
@@ -196,7 +232,7 @@ fn main() {
 
 	<script src="//cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>
 	<script src="//cdn.jsdelivr.net/uikit/2.21.0/js/uikit.min.js"></script>
-	<script src="http://yyo.me/js/highlight.pack.js"></script>
+	<script src="http://localhost:1313/js/highlight.pack.js"></script>
 	<script>hljs.initHighlightingOnLoad();</script>
 
 
@@ -216,7 +252,10 @@ ga('send', 'pageview');
 
 
 
-</body>
+<script data-no-instant>document.write('<script src="http://'
+        + (location.host || 'localhost').split(':')[0]
+		+ ':1313/livereload.js?mindelay=10"></'
+        + 'script>')</script></body>
 </html>
 
 
@@ -232,7 +271,7 @@ ga('send', 'pageview');
     dsq.async = true;
     ds_loaded = false;
   var disqus_shortname = 'yyofme';
-    disqus_url = 'http:\/\/yyo.me\/post\/rust-deref\/';
+    disqus_url = 'http:\/\/localhost:1313\/post\/rust-closure\/';
   dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
 
   $('[data-uk-scrollspy]').on('init.uk.scrollspy', function () {
