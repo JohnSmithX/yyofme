@@ -63,6 +63,56 @@
         <div class="uk-panel uk-panel-box uk-panel-box-primary">
           Unless otherwise indicated, the text of documents in this site is available under the <a href="https://creativecommons.org/licenses/by/3.0/deed">Creative Commons Attribution 3.0 Unported License</a>, or any later version. Copyright 2014-2016 xushuai.
         </div>
+          <div id="toc" class="well col-md-4 col-sm-6">
+          <nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#http-api设计指导:bcda3c781250d2e9b974ed0ba415289b">HTTP API设计指导</a>
+<ul>
+<li><a href="#介绍:bcda3c781250d2e9b974ed0ba415289b">介绍</a></li>
+<li><a href="#准备工作:bcda3c781250d2e9b974ed0ba415289b">准备工作</a>
+<ul>
+<li><a href="#1-需要tls:bcda3c781250d2e9b974ed0ba415289b">1. 需要tls</a></li>
+<li><a href="#2-在accepts头参数中表明api的版本:bcda3c781250d2e9b974ed0ba415289b">2. 在accepts头参数中表明api的版本</a></li>
+<li><a href="#3-使用etags:bcda3c781250d2e9b974ed0ba415289b">3. 使用Etags</a></li>
+<li><a href="#4-通过request-ids追踪请求:bcda3c781250d2e9b974ed0ba415289b">4. 通过Request-Ids追踪请求</a></li>
+<li><a href="#5-content-range标记页码:bcda3c781250d2e9b974ed0ba415289b">5. Content-Range标记页码</a></li>
+</ul></li>
+<li><a href="#请求-request:bcda3c781250d2e9b974ed0ba415289b">请求 <code>Request</code></a>
+<ul>
+<li><a href="#1-使用状态码:bcda3c781250d2e9b974ed0ba415289b">1. 使用状态码</a></li>
+<li><a href="#2-返回完整的资源:bcda3c781250d2e9b974ed0ba415289b">2. 返回完整的资源</a></li>
+<li><a href="#3-接受json参数请求:bcda3c781250d2e9b974ed0ba415289b">3. 接受json参数请求</a></li>
+<li><a href="#4-使用restful的路径格式:bcda3c781250d2e9b974ed0ba415289b">4. 使用restful的路径格式</a>
+<ul>
+<li><a href="#资源名:bcda3c781250d2e9b974ed0ba415289b">资源名</a></li>
+<li><a href="#资源操作:bcda3c781250d2e9b974ed0ba415289b">资源操作</a></li>
+</ul></li>
+<li><a href="#5-路径使用小写字母:bcda3c781250d2e9b974ed0ba415289b">5. 路径使用小写字母</a></li>
+<li><a href="#6-路径中资源可以用非id标示:bcda3c781250d2e9b974ed0ba415289b">6. 路径中资源可以用非ID标示</a></li>
+<li><a href="#7-因尽量减少路径的深层次嵌套:bcda3c781250d2e9b974ed0ba415289b">7. 因尽量减少路径的深层次嵌套</a></li>
+</ul></li>
+<li><a href="#反馈-response:bcda3c781250d2e9b974ed0ba415289b">反馈 <code>Response</code></a>
+<ul>
+<li><a href="#1-资源的唯一标示id:bcda3c781250d2e9b974ed0ba415289b">1. 资源的唯一标示ID</a></li>
+<li><a href="#2-记录资源创建和更新时间戳:bcda3c781250d2e9b974ed0ba415289b">2. 记录资源创建和更新时间戳</a></li>
+<li><a href="#3-使用utc时间和iso8601格式:bcda3c781250d2e9b974ed0ba415289b">3. 使用UTC时间和ISo8601格式</a></li>
+<li><a href="#4-包含并嵌套外键关系:bcda3c781250d2e9b974ed0ba415289b">4. 包含并嵌套外键关系</a></li>
+<li><a href="#5-错误数据返回格式应该是经过设计的:bcda3c781250d2e9b974ed0ba415289b">5. 错误数据返回格式应该是经过设计的</a></li>
+<li><a href="#6-标示请求速率限制状态:bcda3c781250d2e9b974ed0ba415289b">6. 标示请求速率限制状态</a></li>
+<li><a href="#7-压缩返回的json文件:bcda3c781250d2e9b974ed0ba415289b">7. 压缩返回的json文件</a></li>
+</ul></li>
+<li><a href="#注意:bcda3c781250d2e9b974ed0ba415289b">注意</a>
+<ul>
+<li><a href="#声明-转载请注明出处via-xus-https-github-com-johnsmithx:bcda3c781250d2e9b974ed0ba415289b"><strong>声明</strong>:转载请注明出处via<a href="https://github.com/JohnSmithX">xus</a></a></li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+          </div>
+          <h1>HTTP API设计</h1>
 					
 
 <h2 id="http-api设计指导:bcda3c781250d2e9b974ed0ba415289b">HTTP API设计指导</h2>
