@@ -1,4 +1,4 @@
-baseurl = "http://yyo.me/"
+baseurl = "http://xushu.ai/"
 languageCode = "zh-cn"
 title = "YY of Me"
 contentdir = "content"
@@ -16,8 +16,8 @@ theme = "hugo-theme-next"
   GravatarHash = ""
   Facebook = ""
   Twitter = ""
-  Github = "https://github.com/JohnSmithX"
-  Disqus = "yyofme"
+  Github = "https://github.com/xusss"
+  Disqus = "xushuai"
   perPage = 10
   ShowRelatedPost = true
   ShowTagCloud = false

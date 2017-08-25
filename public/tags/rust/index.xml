@@ -2,260 +2,36 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Rust on YY of Me</title>
-    <link>http://yyo.me/tags/rust/</link>
+    <link>http://xushu.ai/tags/rust/</link>
     <description>Recent content in Rust on YY of Me</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Sun, 20 Sep 2015 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://yyo.me/tags/rust/index.xml" rel="self" type="application/rss+xml" />
+    
+	<atom:link href="http://xushu.ai/tags/rust/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>Rust的Deref coercion</title>
-      <link>http://yyo.me/post/rust-deref/</link>
+      <link>http://xushu.ai/post/rust-deref/</link>
       <pubDate>Sun, 20 Sep 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://yyo.me/post/rust-deref/</guid>
-      <description>
-
-&lt;h2 id=&#34;rust的deref-coercion:1d16385d3d2e83b9611f1f0fdbd621b1&#34;&gt;Rust的Deref coercion&lt;/h2&gt;
-
-&lt;h3 id=&#34;了解强制多态:1d16385d3d2e83b9611f1f0fdbd621b1&#34;&gt;了解强制多态&lt;/h3&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;编译程序通过语义操作，把操作对象的类型强行加以变换，以符合函数或操作符的要求。程序设计语言中基本类型的大多数操作符，在发生不同类型的数据进行混合运算时，编译程序一般都会进行强制多态。程序员也可以显示地进行强制多态的操作(Casting)。举个例子，比如，int+double，编译系统一般会把int转换为double，然后执行double+double运算，这个int-&amp;gt;double的转换，就实现了强制多态，即可是隐式的，也可显式转换。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;简单来说当变量遇到某种操作时，发生了类型转换。&lt;/p&gt;
-
-&lt;h3 id=&#34;deref-http-doc-rust-lang-org-nightly-std-ops-trait-deref-html-trait:1d16385d3d2e83b9611f1f0fdbd621b1&#34;&gt;&lt;a href=&#34;http://doc.rust-lang.org/nightly/std/ops/trait.Deref.html&#34;&gt;Deref&lt;/a&gt; trait&lt;/h3&gt;
-
-&lt;p&gt;&lt;code&gt;Deref&lt;/code&gt;是&lt;code&gt;Rust&lt;/code&gt;的一个&lt;code&gt;trait&lt;/code&gt;。&lt;code&gt;trait&lt;/code&gt;相当于其它语言的接口或者协议。&lt;code&gt;Deref&lt;/code&gt;的一般用来重载&lt;code&gt;*&lt;/code&gt;解引用运算符。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;use std::ops::Deref;
-
-struct Example {
-	value: i32,
-}
-
-impl Deref for Example {
-	type Target = i32;
-    fn deref(&amp;amp;self) -&amp;gt; &amp;amp;i32 {
-    	&amp;amp;self.value
-    }
-}
-
-
-fn main() {
-	let x = Example{ value: 5 };
-    assert_eq!(5, *x); // 解引用会执行 Deref::deref(&amp;amp;self) 返回一个i32类型
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;deref-coercion-https-doc-rust-lang-org-book-deref-coercions-html:1d16385d3d2e83b9611f1f0fdbd621b1&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/book/deref-coercions.html&#34;&gt;Deref coercion&lt;/a&gt;&lt;/h3&gt;
-
-&lt;p&gt;&lt;strong&gt;deref coercions&lt;/strong&gt; 解引用强制多态在&lt;code&gt;Rust&lt;/code&gt;中的规则：假如一个类型&lt;code&gt;U&lt;/code&gt;实现了&lt;code&gt;Deref&lt;/code&gt;，那么 &lt;code&gt;&amp;amp;U&lt;/code&gt;类型将自动转化成&lt;code&gt;&amp;amp;Self::Target&lt;/code&gt;。(&lt;code&gt;Target&lt;/code&gt;具体类型)&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;struct U&amp;lt;T&amp;gt;(T);
-
-impl&amp;lt;T&amp;gt; Deref for U&amp;lt;T&amp;gt; {
-	type Target = T;
-    fn deref(&amp;amp;self) -&amp;gt; &amp;amp;Self::Target {
-        &amp;amp;self.0
-    }
-}
-
-fn main() {
-	// 这里`&amp;amp;U`类型被自动转换成了`&amp;amp;Self::Target`，也就是`&amp;amp;i32`
-	let _x: &amp;amp;i32 = &amp;amp;U::&amp;lt;i32&amp;gt;(5);
-}
-&lt;/code&gt;&lt;/pre&gt;
-</description>
+      <guid>http://xushu.ai/post/rust-deref/</guid>
+      <description>Rust的Deref coercion 了解强制多态  编译程序通过语义操作，把操作对象的类型强行加以变换，以符合函数或操作符的要求。程序设计语言中基本类型的大多数操作符，在发生不同类型的数据进行混合运算时，编译程序一般都会进行强制多态。程序员也可以显示地进行强制多态的操作(Casting)。举个例子，比如，int+double，编译系统一般会把int转换为double，然后执行double+double运算，这个int-&amp;gt;double的转换，就实现了强制多态，即可是隐式的，也可显式转换。
+ 简单来说当变量遇到某种操作时，发生了类型转换。
+Deref trait Deref是Rust的一个trait。trait相当于其它语言的接口或者协议。Deref的一般用来重载*解引用运算符。
+use std::ops::Deref; struct Example { value: i32, } impl Deref for Example { type Target = i32; fn deref(&amp;amp;self) -&amp;gt; &amp;amp;i32 { &amp;amp;self.value } } fn main() { let x = Example{ value: 5 }; assert_eq!(5, *x); // 解引用会执行 Deref::deref(&amp;amp;self) 返回一个i32类型 }  Deref coercion deref coercions 解引用强制多态在Rust中的规则：假如一个类型U实现了Deref，那么 &amp;amp;U类型将自动转化成&amp;amp;Self::Target。(Target具体类型)
+struct U&amp;lt;T&amp;gt;(T); impl&amp;lt;T&amp;gt; Deref for U&amp;lt;T&amp;gt; { type Target = T; fn deref(&amp;amp;self) -&amp;gt; &amp;amp;Self::Target { &amp;amp;self.</description>
     </item>
     
     <item>
       <title>Rust的三种指针</title>
-      <link>http://yyo.me/post/rust-three-pointers/</link>
+      <link>http://xushu.ai/post/rust-three-pointers/</link>
       <pubDate>Wed, 09 Sep 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://yyo.me/post/rust-three-pointers/</guid>
-      <description>
-
-&lt;h2 id=&#34;rust的三种指针:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;Rust的三种指针&lt;/h2&gt;
-
-&lt;h3 id=&#34;summary:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;Summary&lt;/h3&gt;
-
-&lt;h4 id=&#34;他们都有谁:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;他们都有谁？&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;所有权指针 unique pointers&lt;/li&gt;
-&lt;li&gt;借贷指针 borrowed pointers&lt;/li&gt;
-&lt;li&gt;原始指针 raw pointers&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4 id=&#34;有什么不同:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;有什么不同？&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;所有权（不是指针）：绑定一个值并拥有所有权 &lt;code&gt;let a = 5;&lt;/code&gt; a有5的所有权&lt;/li&gt;
-&lt;li&gt;所有权指针：和所有权类似但所绑定的值是一个指针类型 &lt;code&gt;let a = Box::new(5);&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;借贷指针：引用一个现有的值，但是并不分配内存，只是一个地址的别名&lt;/li&gt;
-&lt;li&gt;原始指针：和c/c++指针类似&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4 id=&#34;tips:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;Tips：&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;数据可变性遵从指针的可变性&lt;code&gt;let a = Box::new(5);&lt;/code&gt;不可变，&lt;code&gt;let mut a = Box::new(5);&lt;/code&gt;可变&lt;/li&gt;
-&lt;li&gt;在任何时候只有一个&lt;strong&gt;所有权指&lt;/strong&gt;针指向同一内存&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;strong&gt;所有权指针&lt;/strong&gt;和&lt;strong&gt;原始指针必&lt;/strong&gt;须解引用才能它们，但在Rust中，方法调用会自动解引用&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;struct Person;
-
-
-impl Person {
-    fn say_hello(self) {
-        println!(&amp;quot;hello&amp;quot;);
-    }
-}
-let a = Box::new(Person);
-let b: Person = *a;// 需要解引用
-// or
-let a.say_hello();// 自动解引用
-&lt;/code&gt;&lt;/pre&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;值的&lt;strong&gt;所有权&lt;/strong&gt;可以通过重新绑定来转移，但只能存在一个&lt;strong&gt;owner&lt;/strong&gt;，当值不在有绑定时，会被释放&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;所有权指针:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;所有权指针&lt;/h3&gt;
-
-&lt;h5 id=&#34;让我们创建一个所有权指针:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;让我们创建一个所有权指针：&lt;/h5&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let a: Box&amp;lt;i32&amp;gt; = Box::new(5);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;code&gt;Box::new(5)&lt;/code&gt;会在堆中分配一个&lt;code&gt;i32&lt;/code&gt;类型值为&lt;code&gt;5&lt;/code&gt;的空间，&lt;code&gt;a&lt;/code&gt;是一个指向它的&lt;code&gt;所有权指针&lt;/code&gt;，&lt;code&gt;a&lt;/code&gt;在桟上并且是唯一的。&lt;/p&gt;
-
-&lt;h5 id=&#34;让我们看看它的有哪些特性:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;让我们看看它的有哪些特性：&lt;/h5&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;// 我们不能通过`*a = 6`来改变它的值，因为它的可变性遵从`a`的可变性
-let a: Box&amp;lt;i32&amp;gt; = Box::new(5);
-*a = 6; // Fail
-// 所以
-let mut a: Box&amp;lt;i32&amp;gt; = Box::new(5);
-*a = 6; // OK
-
-/*==========================================================*/
-// 所有权指针必须通过解引用来使用，但调用方法会自动解引用
-struct Person;
-impl Person {
-    fn say_hello(self) {
-        println!(&amp;quot;hello&amp;quot;);
-    }
-}
-let a = Box::new(Person);
-let b: Person = *a;// 解引用
-// or
-let a.say_hello();// 自动解引用
-
-/*==========================================================*/
-//在一般情况下，Rust具有移动而不是复制的语义，但原始类型具有复制的语义
-let a = 5;
-let b = a;//`a`是`i32`类型属于原始类型，所以`b`持有`a`的拷贝。详：`Copy` 和 `Clone` trail
-
-// but
-let a = Box::new(5);
-let b = a;// 这里`a`持有的所有权指针转移给了`b`
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;借贷指针:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;借贷指针&lt;/h3&gt;
-
-&lt;p&gt;我们使用&lt;code&gt;&amp;amp;&lt;/code&gt;操作符创建一个借来的引用，用&lt;code&gt;*&lt;/code&gt;来解引用。&lt;strong&gt;借贷指针&lt;/strong&gt;不分配内存，类似&lt;strong&gt;别名&lt;/strong&gt;，自动解引用规则也应用于&lt;strong&gt;借贷指针&lt;/strong&gt;。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let a: &amp;amp;i32 = &amp;amp;5;// `a`为值`5`的一个借贷引用
-let b: i32 = *a;// 使用 `*` 解引用
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h5 id=&#34;不可变的借贷指针不是唯一的:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;不可变的借贷指针不是唯一的：&lt;/h5&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let a: i32 = 5;
-let b: &amp;amp;i32 = &amp;amp;a;
-let c: &amp;amp;i32 = b;
-let d: &amp;amp;i32 = b;
-println!(&amp;quot;values {} {} {}&amp;quot;, *b, *c, *d);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;strong&gt;注：可以看出借贷指针类型具有复制的语义&lt;/strong&gt;&lt;/p&gt;
-
-&lt;h5 id=&#34;可变的借贷指针是唯一的:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;可变的借贷指针是唯一的：&lt;/h5&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let mut a: i32 = 5;// `a`为可变的绑定
-let b: &amp;amp;mut i32 = &amp;amp;mut a;// b为一个可变借贷指针，获得一个可变绑定的可变引用
-*b = 6;// OK 因为`b`是可变借贷指针
-let c: &amp;amp;mut i32 = &amp;amp;mut a;// Fail 可变的借贷引用同一时间只能存在一个
-// 所以
-{
-	let b: &amp;amp;mut i32 = &amp;amp;mut a;// 独立的组用域
-}
-let c: &amp;amp;mut i32 = &amp;amp;mut a;// OK `b`已经被销毁
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h5 id=&#34;变量的可变性和值的可变性:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;变量的可变性和值的可变性：&lt;/h5&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let mut a: i32 = 5;
-let mut b: i32 = 6;// 可变绑定`a`和`b`
-let mut c: &amp;amp;mut i32 = &amp;amp;mut a;// `c`的类型为可变借贷指针，本身是可变的
-c = &amp;amp;mut b;          // Ok `c`可以引用不同的可变绑定
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;原始指针:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;原始指针&lt;/h3&gt;
-
-&lt;p&gt;&lt;strong&gt;原始指针&lt;/strong&gt;表现和&lt;code&gt;c/c++&lt;/code&gt;类似，在&lt;code&gt;Rust&lt;/code&gt;中原始指针又名&lt;strong&gt;不安全指针&lt;/strong&gt;，因为&lt;strong&gt;原始指针&lt;/strong&gt;可能是一个&lt;strong&gt;空指针&lt;/strong&gt;或者&lt;strong&gt;野指针&lt;/strong&gt;，解引用它们是不安全的。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let a: *const i32 = &amp;amp;5;// 通过明确的制定变量为指针类型来得到一个原始指针
-let b: *mut i32 = &amp;amp;5;// 原始指针两种形式 `*const T`和`*mut T`
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;code&gt;*const T&lt;/code&gt;为不可变的&lt;strong&gt;原始指针&lt;/strong&gt;，&lt;code&gt;*mut T&lt;/code&gt;为可变的&lt;strong&gt;原始指针&lt;/strong&gt;，可以解引用后改变引用的值。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let a: *mut i32 = &amp;amp;5;
-unsafe {
-	*a = 6;// 可变原始指针，可以改变引用的值
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h5 id=&#34;原始指针需要在-unsafe-块中解引用:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;原始指针需要在&lt;code&gt;unsafe&lt;/code&gt;块中解引用:&lt;/h5&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;let a: *const i32 = &amp;amp;5;
-unsafe {
-	println!(&amp;quot;{:?}&amp;quot;, *a);
-}
-
-// Fail
-let a: *const i32 = &amp;amp;5;
-println!(&amp;quot;{:?}&amp;quot;, *a);// Fail 需要`unsafe`块解引用
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h5 id=&#34;example:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;Example:&lt;/h5&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;use std::rc::Rc;
-
-fn bar(x: Rc&amp;lt;i32&amp;gt;) { }
-fn baz(x: &amp;amp;i32) { }
-
-fn main() {
-    let a: Rc&amp;lt;i32&amp;gt; = Rc::new(45);
-    bar(x.clone());   // 此处使用`clone`时要显示的告诉使用者复制了一个原始指针，并且引用计数加一
-    baz(&amp;amp;*x);         // 没有在`unsafe`中解引用，是因为已经在`Rc`中封装，并不会增加引用计数
-    println!(&amp;quot;{}&amp;quot;, 100 - *x);
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;小结:45dddc0d0ef3a1e3621260379b8d75ad&#34;&gt;小结&lt;/h3&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;&amp;emsp;&amp;emsp;&lt;code&gt;Rust&lt;/code&gt;的安全来自严格的类型使用规范，只要搞懂了&lt;code&gt;Rust&lt;/code&gt;如何通过强大的指针系统来实现安全的所有权系统就能在编译器编译通过的情况下，能够按照预期在执行，更不用担心各种潜在的Bug。&lt;/p&gt;
-&lt;/blockquote&gt;
-</description>
+      <guid>http://xushu.ai/post/rust-three-pointers/</guid>
+      <description>Rust的三种指针 Summary 他们都有谁？  所有权指针 unique pointers 借贷指针 borrowed pointers 原始指针 raw pointers  有什么不同？  所有权（不是指针）：绑定一个值并拥有所有权 let a = 5; a有5的所有权 所有权指针：和所有权类似但所绑定的值是一个指针类型 let a = Box::new(5); 借贷指针：引用一个现有的值，但是并不分配内存，只是一个地址的别名 原始指针：和c/c++指针类似  Tips：  数据可变性遵从指针的可变性let a = Box::new(5);不可变，let mut a = Box::new(5);可变 在任何时候只有一个所有权指针指向同一内存 所有权指针和原始指针必须解引用才能它们，但在Rust中，方法调用会自动解引用
+struct Person; impl Person { fn say_hello(self) { println!(&amp;quot;hello&amp;quot;); } } let a = Box::new(Person); let b: Person = *a;// 需要解引用 // or let a.say_hello();// 自动解引用  值的所有权可以通过重新绑定来转移，但只能存在一个owner，当值不在有绑定时，会被释放</description>
     </item>
     
   </channel>
