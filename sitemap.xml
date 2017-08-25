@@ -1,40 +1,119 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>http://yyo.me/</loc>
+    <loc>http://xushu.ai/post/rust-deref/</loc>
+    <lastmod>2015-09-20T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/post/rust-three-pointers/</loc>
+    <lastmod>2015-09-09T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/post/book-baiyexing/</loc>
+    <lastmod>2014-08-11T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/post/restful-api-design/</loc>
+    <lastmod>2014-08-02T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/about/</loc>
+    <lastmod>2014-06-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/post/first-page/</loc>
+    <lastmod>2014-06-01T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/tags/about/</loc>
+    <lastmod>2014-06-01T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/tags/api/</loc>
+    <lastmod>2014-08-02T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/tags/deref/</loc>
     <lastmod>2015-09-20T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://yyo.me/post/rust-deref/</loc>
-    <lastmod>2015-09-20T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://yyo.me/post/rust-three-pointers/</loc>
-    <lastmod>2015-09-09T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://yyo.me/post/book-baiyexing/</loc>
-    <lastmod>2014-08-11T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://yyo.me/post/restful-api-design/</loc>
+    <loc>http://xushu.ai/tags/http/</loc>
     <lastmod>2014-08-02T00:00:00+00:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://yyo.me/about/</loc>
-    <lastmod>2014-06-01T00:00:00+00:00</lastmod>
+    <loc>http://xushu.ai/post/</loc>
+    <lastmod>2015-09-20T00:00:00+00:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>
-    <loc>http://yyo.me/post/first-page/</loc>
+    <loc>http://xushu.ai/tags/rust/</loc>
+    <lastmod>2015-09-20T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/tags/</loc>
     <lastmod>2014-06-01T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/tags/trait/</loc>
+    <lastmod>2015-09-20T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/</loc>
+    <lastmod>2015-09-20T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/tags/%E5%B0%8F%E8%AF%B4/</loc>
+    <lastmod>2014-08-11T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/tags/%E6%8C%87%E9%92%88/</loc>
+    <lastmod>2015-09-09T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/tags/%E6%8E%A8%E7%90%86/</loc>
+    <lastmod>2014-08-11T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/tags/%E7%94%9F%E6%B4%BB/</loc>
+    <lastmod>2014-06-01T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://xushu.ai/tags/%E9%9A%8F%E7%AC%94/</loc>
+    <lastmod>2014-06-01T00:00:00+00:00</lastmod>
+    <priority>0</priority>
   </url>
   
 </urlset>

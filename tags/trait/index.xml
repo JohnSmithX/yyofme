@@ -2,74 +2,26 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Trait on YY of Me</title>
-    <link>http://yyo.me/tags/trait/</link>
+    <link>http://xushu.ai/tags/trait/</link>
     <description>Recent content in Trait on YY of Me</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
     <lastBuildDate>Sun, 20 Sep 2015 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://yyo.me/tags/trait/index.xml" rel="self" type="application/rss+xml" />
+    
+	<atom:link href="http://xushu.ai/tags/trait/index.xml" rel="self" type="application/rss+xml" />
+    
     
     <item>
       <title>Rust的Deref coercion</title>
-      <link>http://yyo.me/post/rust-deref/</link>
+      <link>http://xushu.ai/post/rust-deref/</link>
       <pubDate>Sun, 20 Sep 2015 00:00:00 +0000</pubDate>
       
-      <guid>http://yyo.me/post/rust-deref/</guid>
-      <description>
-
-&lt;h2 id=&#34;rust的deref-coercion:1d16385d3d2e83b9611f1f0fdbd621b1&#34;&gt;Rust的Deref coercion&lt;/h2&gt;
-
-&lt;h3 id=&#34;了解强制多态:1d16385d3d2e83b9611f1f0fdbd621b1&#34;&gt;了解强制多态&lt;/h3&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;编译程序通过语义操作，把操作对象的类型强行加以变换，以符合函数或操作符的要求。程序设计语言中基本类型的大多数操作符，在发生不同类型的数据进行混合运算时，编译程序一般都会进行强制多态。程序员也可以显示地进行强制多态的操作(Casting)。举个例子，比如，int+double，编译系统一般会把int转换为double，然后执行double+double运算，这个int-&amp;gt;double的转换，就实现了强制多态，即可是隐式的，也可显式转换。&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;简单来说当变量遇到某种操作时，发生了类型转换。&lt;/p&gt;
-
-&lt;h3 id=&#34;deref-http-doc-rust-lang-org-nightly-std-ops-trait-deref-html-trait:1d16385d3d2e83b9611f1f0fdbd621b1&#34;&gt;&lt;a href=&#34;http://doc.rust-lang.org/nightly/std/ops/trait.Deref.html&#34;&gt;Deref&lt;/a&gt; trait&lt;/h3&gt;
-
-&lt;p&gt;&lt;code&gt;Deref&lt;/code&gt;是&lt;code&gt;Rust&lt;/code&gt;的一个&lt;code&gt;trait&lt;/code&gt;。&lt;code&gt;trait&lt;/code&gt;相当于其它语言的接口或者协议。&lt;code&gt;Deref&lt;/code&gt;的一般用来重载&lt;code&gt;*&lt;/code&gt;解引用运算符。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;use std::ops::Deref;
-
-struct Example {
-	value: i32,
-}
-
-impl Deref for Example {
-	type Target = i32;
-    fn deref(&amp;amp;self) -&amp;gt; &amp;amp;i32 {
-    	&amp;amp;self.value
-    }
-}
-
-
-fn main() {
-	let x = Example{ value: 5 };
-    assert_eq!(5, *x); // 解引用会执行 Deref::deref(&amp;amp;self) 返回一个i32类型
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;deref-coercion-https-doc-rust-lang-org-book-deref-coercions-html:1d16385d3d2e83b9611f1f0fdbd621b1&#34;&gt;&lt;a href=&#34;https://doc.rust-lang.org/book/deref-coercions.html&#34;&gt;Deref coercion&lt;/a&gt;&lt;/h3&gt;
-
-&lt;p&gt;&lt;strong&gt;deref coercions&lt;/strong&gt; 解引用强制多态在&lt;code&gt;Rust&lt;/code&gt;中的规则：假如一个类型&lt;code&gt;U&lt;/code&gt;实现了&lt;code&gt;Deref&lt;/code&gt;，那么 &lt;code&gt;&amp;amp;U&lt;/code&gt;类型将自动转化成&lt;code&gt;&amp;amp;Self::Target&lt;/code&gt;。(&lt;code&gt;Target&lt;/code&gt;具体类型)&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-rust&#34;&gt;struct U&amp;lt;T&amp;gt;(T);
-
-impl&amp;lt;T&amp;gt; Deref for U&amp;lt;T&amp;gt; {
-	type Target = T;
-    fn deref(&amp;amp;self) -&amp;gt; &amp;amp;Self::Target {
-        &amp;amp;self.0
-    }
-}
-
-fn main() {
-	// 这里`&amp;amp;U`类型被自动转换成了`&amp;amp;Self::Target`，也就是`&amp;amp;i32`
-	let _x: &amp;amp;i32 = &amp;amp;U::&amp;lt;i32&amp;gt;(5);
-}
-&lt;/code&gt;&lt;/pre&gt;
-</description>
+      <guid>http://xushu.ai/post/rust-deref/</guid>
+      <description>Rust的Deref coercion 了解强制多态  编译程序通过语义操作，把操作对象的类型强行加以变换，以符合函数或操作符的要求。程序设计语言中基本类型的大多数操作符，在发生不同类型的数据进行混合运算时，编译程序一般都会进行强制多态。程序员也可以显示地进行强制多态的操作(Casting)。举个例子，比如，int+double，编译系统一般会把int转换为double，然后执行double+double运算，这个int-&amp;gt;double的转换，就实现了强制多态，即可是隐式的，也可显式转换。
+ 简单来说当变量遇到某种操作时，发生了类型转换。
+Deref trait Deref是Rust的一个trait。trait相当于其它语言的接口或者协议。Deref的一般用来重载*解引用运算符。
+use std::ops::Deref; struct Example { value: i32, } impl Deref for Example { type Target = i32; fn deref(&amp;amp;self) -&amp;gt; &amp;amp;i32 { &amp;amp;self.value } } fn main() { let x = Example{ value: 5 }; assert_eq!(5, *x); // 解引用会执行 Deref::deref(&amp;amp;self) 返回一个i32类型 }  Deref coercion deref coercions 解引用强制多态在Rust中的规则：假如一个类型U实现了Deref，那么 &amp;amp;U类型将自动转化成&amp;amp;Self::Target。(Target具体类型)
+struct U&amp;lt;T&amp;gt;(T); impl&amp;lt;T&amp;gt; Deref for U&amp;lt;T&amp;gt; { type Target = T; fn deref(&amp;amp;self) -&amp;gt; &amp;amp;Self::Target { &amp;amp;self.</description>
     </item>
     
   </channel>
